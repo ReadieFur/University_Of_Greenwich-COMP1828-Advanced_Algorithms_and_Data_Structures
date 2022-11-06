@@ -1,3 +1,6 @@
 [submodule "tools/GraphBuilder"]
 	path = tools/GraphBuilder
 	url = https://github.com/ReadieFur/GraphBuilder
+[submodule "tools/tessdata_best"]
+	path = tools/tessdata_best
+	url = https://github.com/tesseract-ocr/tessdata_best
