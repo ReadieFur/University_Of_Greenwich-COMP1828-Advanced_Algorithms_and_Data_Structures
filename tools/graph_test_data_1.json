@@ -1,0 +1,85 @@
+{
+    "nodes": [
+        {
+            "id": 8528872288172311,
+            "adjacencyList": [
+                {
+                    "neighbouringNodeID": 4332919451093141,
+                    "weight": 2
+                },
+                {
+                    "neighbouringNodeID": 45165732929119,
+                    "weight": 3
+                }
+            ],
+            "px": 543,
+            "py": 48,
+            "label": "8528872288172311"
+        },
+        {
+            "id": 106467735536239,
+            "adjacencyList": [
+                {
+                    "neighbouringNodeID": 45165732929119,
+                    "weight": 1
+                }
+            ],
+            "px": 584,
+            "py": 293,
+            "label": "106467735536239"
+        },
+        {
+            "id": 45165732929119,
+            "adjacencyList": [
+                {
+                    "neighbouringNodeID": 1201487481849593,
+                    "weight": 5
+                },
+                {
+                    "neighbouringNodeID": 8528872288172311,
+                    "weight": 3
+                },
+                {
+                    "neighbouringNodeID": 106467735536239,
+                    "weight": 1
+                }
+            ],
+            "px": 474,
+            "py": 172,
+            "label": "45165732929119"
+        },
+        {
+            "id": 4332919451093141,
+            "adjacencyList": [
+                {
+                    "neighbouringNodeID": 1201487481849593,
+                    "weight": 7
+                },
+                {
+                    "neighbouringNodeID": 8528872288172311,
+                    "weight": 2
+                }
+            ],
+            "px": 389,
+            "py": 430,
+            "label": "4332919451093141"
+        },
+        {
+            "id": 1201487481849593,
+            "adjacencyList": [
+                {
+                    "neighbouringNodeID": 4332919451093141,
+                    "weight": 7
+                },
+                {
+                    "neighbouringNodeID": 45165732929119,
+                    "weight": 5
+                }
+            ],
+            "px": 319,
+            "py": 105,
+            "label": "1201487481849593"
+        }
+    ],
+    "canvasImage": null
+}
