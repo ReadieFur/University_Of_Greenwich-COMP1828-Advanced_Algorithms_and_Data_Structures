@@ -1,5 +1,5 @@
-from collections import namedtuple
 from typing import Dict, List
+from collections import namedtuple
 import json
 from sys import maxsize as INT_MAX
 import random
@@ -20,8 +20,8 @@ class SerializedGraph:
     def from_json(json_string: str) -> "SerializedGraph":
         #https://stackoverflow.com/questions/6578986/how-to-convert-json-data-into-a-python-object
         # res = json.loads(json_string, object_hook=lambda d: SerializedGraph(**d)) #This would through an unexpected kwarg error.
-        res = json.loads(json_string, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
-        return res
+        obj = json.loads(json_string, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
+        return obj
 
     @staticmethod
     def load_from_file(file_path: str) -> "Graph":
