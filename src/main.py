@@ -1,5 +1,7 @@
-from algorithms.algorithm_tests import AlgorithmTests
+class Program:
+    @staticmethod
+    def Main() -> None:
+        pass
 
 if __name__ == "__main__":
-    if True:
-        AlgorithmTests.run()
+    Program.Main()

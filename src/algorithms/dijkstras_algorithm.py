@@ -4,15 +4,11 @@ from core.graph import Graph
 from core.node import Node
 
 class DijkstraNode:
-    previous_node: "DijkstraNode" = None
-    path_weight: int = INT_MAX
-
-    __node: Node
     @property
     def node(self) -> Node:
         return self.__node
 
-    __is_boxed: bool = False
+    #Public get, public (custom) set.
     @property
     def is_boxed(self) -> bool:
         return self.__is_boxed
@@ -23,7 +19,10 @@ class DijkstraNode:
         self.__is_boxed = value
 
     def __init__(self, node: Node) -> None:
-        self.__node = node
+        self.__node: Node = node
+        self.previous_node: "DijkstraNode" = None
+        self.path_weight: int = INT_MAX
+        self.__is_boxed: bool = False
 
 """
 * I am using the following psuedocode to assist in my creation of this algorithm:
@@ -49,6 +48,7 @@ Algorithm (G, s)
                 Decrease(Q, u, du)
 """
 class DijkstrasAlgorithm:
+    @staticmethod
     def find_shortest_path(graph: Graph, start_node: Node, end_node: Node) -> DijkstraNode:
         dijkstra_nodes: Dict[int, DijkstraNode] = {}
         for i in graph.nodes.keys():
@@ -106,6 +106,7 @@ class DijkstrasAlgorithm:
         #If we do end somehow end up here, something has gone wrong.
         raise AssertionError(f"Failed to find a path from node '{start_node.id}' to node '{end_node.id}' on the specified graph.")
 
+    @staticmethod
     def dijkstra_node_to_node_array(dijkstra_node: DijkstraNode) -> List[Node]:
         node_array: List[Node] = []
 

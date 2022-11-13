@@ -5,24 +5,30 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .node import Node
 
+class SerializedEdge:
+    def __init__(self) -> None:
+        self.neighbouringNodeID: int = 0
+        self.weight: int = 0
+
 class Edge:
     #Public get, private set.
-    __neibouring_node: Node
     @property
     def neibouring_node(self) -> Node:
         """The neibouring that this edge is connected to."""
         return self.__neibouring_node
 
-    #Public get, public set.
-    __weight: int
-    @property
-    def weight(self) -> int:
-        """The weight of the edge."""
-        return self.__weight
-    @weight.setter
-    def weight(self, value) -> None:
-        self.__weight = value
-
     def __init__(self, neibouring_node: Node, weight: int = 1):
-        self.__neibouring_node = neibouring_node
-        self.__weight = weight
+        self.__neibouring_node: Node = neibouring_node
+        self.weight: int = weight
+
+    def serialize(self) -> SerializedEdge:
+        serialized_edge = SerializedEdge()
+        serialized_edge.neighbouringNodeID = self.neibouring_node.id
+        serialized_edge.weight = self.weight
+        return serialized_edge
+
+    @staticmethod
+    def deserialize(serialized_edge: SerializedEdge, node: Node) -> Edge:
+        edge = Edge(node)
+        edge.weight = serialized_edge.weight
+        return edge

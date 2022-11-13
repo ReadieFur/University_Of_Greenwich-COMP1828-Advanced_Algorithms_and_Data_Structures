@@ -1,10 +1,18 @@
 {
     "configurations": [
         {
-            "name": "Python",
+            "name": "Python: Main",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/main.py",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Python: Tests",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/tests.py",
             "console": "integratedTerminal",
             "justMyCode": true
         }
