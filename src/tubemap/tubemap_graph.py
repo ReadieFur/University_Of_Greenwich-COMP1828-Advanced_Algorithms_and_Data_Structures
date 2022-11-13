@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Callable
 from core.graph import Graph, SerializedGraph
 from .tubemap_node import TubemapNode, SerializedTubemapNode
 

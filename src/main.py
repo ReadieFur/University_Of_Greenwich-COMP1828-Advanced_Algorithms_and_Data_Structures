@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Callable, overload
 import os
 from tubemap.tubemap_graph import TubemapGraph, SerializedTubemapGraph
 from tubemap.tubemap_node import TubemapNode
@@ -78,7 +78,7 @@ class Program:
                     print(f"For help with sub-commands, type: help [command]")
                     print("Commands:")
                     for command in COMMANDS:
-                        print(f"- {command}")
+                        print(f"{command}")
                 else:
                     if command_args[0] not in COMMANDS:
                         print("Invalid command.")
@@ -92,12 +92,31 @@ class Program:
     def __command_list(args: List[str], show_help: bool = False) -> None:
         """Lists the nodes in the graph."""
         if show_help:
-            print("Lists the nodes in the graph.")
+            print("Lists all nodes in the graph with the lines to their neighbours.")
             print("Usage: list")
             return
 
+        buffer: List[(str, str)] = []
+
         for node in Program.__graph.nodes.values():
-            print(f"- {node.id}")
+            info = [f"{node.label if node.label != '' else node.id}", ""]
+
+            line_buffer = []
+            for edge in node.adjacency_list:
+                line_buffer.append(f"{edge.label if edge.label != '' else edge.id}")
+            line_buffer.sort()
+            info[1] = f"{', '.join(line_buffer)}"
+
+            buffer.append((info[0], info[1]))
+
+        buffer.sort(key=lambda x: x[0])
+
+        longest_station_name = len(max(buffer, key=lambda x: len(x[0]))[0])
+        #https://stackoverflow.com/questions/34734572/tabs-in-print-are-not-consistent-python
+        string_formatter = f"{{0:<{longest_station_name}}} -> {{1}}"
+
+        for info in buffer:
+            print(string_formatter.format(info[0], info[1]))
 
     def __command_line(args: List[str], show_help: bool = False) -> None:
         """Shows or updates the properties of a line."""
@@ -107,7 +126,39 @@ class Program:
             print("line info [station1] [station2]\n\tShows if a line is closed or not between the specified stations.")
             print("line open [station1] [station2]\n\tOpens a line.")
             print("line close [station1] [station2]\n\tCloses a line.")
+
+        if len(args) < 3:
+            print("Invalid syntax.")
             return
+
+        node1 = Program.__get_node_from_label_or_id(args[1])
+        node2 = Program.__get_node_from_label_or_id(args[2])
+
+        if node1 is None:
+            print("Invalid first station.")
+            return
+        if node2 is None:
+            print("Invalid second station.")
+            return
+
+        line1_label = node1.label if node1.label != "" else node1.id
+        line2_label = node2.label if node2.label != "" else node2.id
+
+        edge = node1.adjacency_list.get(node2.id)
+        if edge is None:
+            print("Stations do not have a line between them.")
+            return
+
+        if args[0] == "info":
+            print(f"Line between {line1_label} and {line2_label} is {'closed' if edge.closed else 'open'}.")
+        elif args[0] == "open":
+            edge.closed = False
+            # print(f"Line between {line1_label} and {line2_label} is now open.")
+        elif args[0] == "close":
+            edge.closed = True
+            # print(f"Line between {line1_label} and {line2_label} is now closed.")
+        else:
+            print("Invalid syntax.")
 
     @staticmethod
     def __command_from(args: List[str], show_help = False) -> None:
@@ -133,7 +184,7 @@ class Program:
             print("Usage: algorithm <algorithm>")
             print("Algorithms:")
             for algorithm in Program.__ALGORITHMS:
-                print(f"- {algorithm}")
+                print(f"{algorithm}")
             return
 
     @staticmethod
@@ -152,6 +203,19 @@ class Program:
             print("Usage: exit")
         else:
             exit()
+
+    @staticmethod
+    def __get_node(predicate: Callable[[TubemapNode], bool]) -> TubemapNode:
+        """Finds the first node in a graph matching against a predicate."""
+        for node in Program.__graph.nodes.values():
+            if predicate(node):
+                return node
+        return None
+
+    @staticmethod
+    def __get_node_from_label_or_id(tag: str) -> TubemapNode:
+        """Finds the first node in a graph matching against a label or ID."""
+        return Program.__get_node(lambda node: node.label.lower() == tag.lower() or node.id == tag)
 
 if __name__ == "__main__":
     Program.Main()
