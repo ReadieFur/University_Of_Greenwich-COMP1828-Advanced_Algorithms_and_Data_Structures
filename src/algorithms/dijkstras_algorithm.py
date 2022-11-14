@@ -1,5 +1,6 @@
 from typing import Dict, List
 from sys import maxsize as INT_MAX
+from algorithms.algorithm import AAlgorithm
 from core.graph import Graph
 from core.node import Node
 
@@ -47,7 +48,7 @@ Algorithm (G, s)
                 pu <- u*
                 Decrease(Q, u, du)
 """
-class DijkstrasAlgorithm:
+class DijkstrasAlgorithm(AAlgorithm):
     @staticmethod
     def find_shortest_path(graph: Graph, start_node: Node, end_node: Node) -> DijkstraNode:
         dijkstra_nodes: Dict[int, DijkstraNode] = {}
