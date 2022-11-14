@@ -1,4 +1,4 @@
-from typing import List, Callable, overload
+from typing import List, Callable
 import os
 from tubemap.core.tubemap_graph import TubemapGraph, SerializedTubemapGraph
 from tubemap.core.tubemap_node import TubemapNode
