@@ -30,9 +30,9 @@ class Program:
 
     def __load_graph() -> None:
         """Loads the graph from the file."""
-        if not os.path.exists("./src/tubemap.json"):
-            raise FileNotFoundError("The tubemap.json graph file was not found in './src/'.")
-        Program.__graph = SerializedTubemapGraph.load_from_file("./src/tubemap.json")
+        if not os.path.exists("./tubemap.json"):
+            raise FileNotFoundError(f"The tubemap.json graph file was not found in the working directory ({os.getcwd()}).")
+        Program.__graph = SerializedTubemapGraph.load_from_file("./tubemap.json")
 
     def __cli() -> None:
         """The command line interface for the program (also the main loop)."""

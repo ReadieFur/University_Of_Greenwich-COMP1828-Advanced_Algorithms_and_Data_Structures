@@ -5,6 +5,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/main.py",
+            "cwd": "${workspaceFolder}/src",
             "console": "integratedTerminal",
             "justMyCode": true
         },
@@ -13,6 +14,7 @@
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/src/tests.py",
+            "cwd": "${workspaceFolder}/src",
             "console": "integratedTerminal",
             "justMyCode": true
         }
