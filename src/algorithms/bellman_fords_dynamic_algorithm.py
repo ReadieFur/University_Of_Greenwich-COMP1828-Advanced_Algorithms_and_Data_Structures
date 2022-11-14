@@ -19,7 +19,7 @@ ALGORITHM Bellman-Ford-DynPrg(G, s)
     for each vertex v do
         dist(s, v) <- d(|V| - 1, v)
 """
-class BellmanFordsAlgorithm(AAlgorithm):
+class BellmanFordsDynamicAlgorithm(AAlgorithm):
     @staticmethod
     def find_shortest_path(start_node: Node, end_node: Node, graph: Graph):
         pass
