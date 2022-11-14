@@ -1,5 +1,5 @@
 from typing import List
-from tubemap.tubemap_node import TubemapNode
+from tubemap.core.tubemap_node import TubemapNode
 
 class TubemapGraphSearcher:
     @staticmethod

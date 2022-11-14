@@ -1,11 +1,11 @@
 from typing import List, Callable, overload
 import os
-from tubemap.tubemap_graph import TubemapGraph, SerializedTubemapGraph
-from tubemap.tubemap_node import TubemapNode
+from tubemap.core.tubemap_graph import TubemapGraph, SerializedTubemapGraph
+from tubemap.core.tubemap_node import TubemapNode
 # from algorithms.graph_searcher import GraphSearcher
 # from algorithms.dijkstras_algorithm import DijkstrasAlgorithm
-from tubemap.tubemap_graph_searcher import TubemapGraphSearcher
-from tubemap.tubemap_dijkstras_algorithm import TubemapDijkstrasAlgorithm
+from tubemap.algorithms.tubemap_graph_searcher import TubemapGraphSearcher
+from tubemap.algorithms.tubemap_dijkstras_algorithm import TubemapDijkstrasAlgorithm
 
 class Program:
     INFO = {

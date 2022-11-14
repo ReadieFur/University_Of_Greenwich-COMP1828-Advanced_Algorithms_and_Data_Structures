@@ -2,8 +2,8 @@ from typing import Dict
 from sys import maxsize as INT_MAX
 # from core.graph import Graph
 # from core.node import Node
-from tubemap.tubemap_graph import TubemapGraph
-from tubemap.tubemap_node import TubemapNode
+from tubemap.core.tubemap_graph import TubemapGraph
+from tubemap.core.tubemap_node import TubemapNode
 from algorithms.dijkstras_algorithm import DijkstrasAlgorithm, DijkstraNode
 
 class TubemapDijkstraNode(DijkstraNode):
