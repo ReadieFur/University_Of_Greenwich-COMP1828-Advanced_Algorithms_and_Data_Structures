@@ -7,7 +7,8 @@ class GraphSearcher:
     def _breadth_first_search(node: Node, visited: List[Node]) -> None:
         """
         This search will visit all unvisited, connected nodes in the order they were added to the graph.
-        Meaning that it will visit nodes neighbors in a queue-like fashion."""
+        Meaning that it will visit nodes neighbors in a queue-like fashion.
+        """
         #We first start by adding the node to the queue.
         queue = [node]
 

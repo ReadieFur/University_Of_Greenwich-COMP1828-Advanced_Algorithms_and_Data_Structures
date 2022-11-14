@@ -2,8 +2,10 @@ from typing import List, Callable, overload
 import os
 from tubemap.tubemap_graph import TubemapGraph, SerializedTubemapGraph
 from tubemap.tubemap_node import TubemapNode
-from algorithms.graph_searcher import GraphSearcher
-from algorithms.dijkstras_algorithm import DijkstrasAlgorithm
+# from algorithms.graph_searcher import GraphSearcher
+# from algorithms.dijkstras_algorithm import DijkstrasAlgorithm
+from tubemap.tubemap_graph_searcher import TubemapGraphSearcher
+from tubemap.tubemap_dijkstras_algorithm import TubemapDijkstrasAlgorithm
 
 class Program:
     INFO = {
@@ -247,7 +249,8 @@ class Program:
             print("The end station has not been set.")
             return
 
-        if not GraphSearcher.is_path_available(Program.__start_node, Program.__end_node, True):
+        # if not GraphSearcher.is_path_available(Program.__start_node, Program.__end_node, True):
+        if not TubemapGraphSearcher.is_path_available(Program.__start_node, Program.__end_node):
             print("No path is available between the start and end stations.")
             return
 
@@ -255,9 +258,10 @@ class Program:
         node_array = []
 
         if Program.__algorithm == 0:
-            dijkstra_node = DijkstrasAlgorithm.find_shortest_path(Program.__graph, Program.__start_node, Program.__end_node)
+            # dijkstra_node = DijkstrasAlgorithm.find_shortest_path(Program.__graph, Program.__start_node, Program.__end_node)
+            dijkstra_node = TubemapDijkstrasAlgorithm.find_shortest_path(Program.__graph, Program.__start_node, Program.__end_node)
             weight = dijkstra_node.path_weight
-            node_array = DijkstrasAlgorithm.dijkstra_node_to_node_array(dijkstra_node)
+            node_array = TubemapDijkstrasAlgorithm.dijkstra_node_to_node_array(dijkstra_node)
 
         buffer = []
         for node in node_array:
@@ -286,7 +290,7 @@ class Program:
     @staticmethod
     def __get_node_from_label_or_id(tag: str) -> TubemapNode:
         """Finds the first node in a graph matching against a label or ID."""
-        return Program.__get_node(lambda node: node.label.lower() == tag.lower() or node.id == tag)
+        return Program.__get_node(lambda node: node.label.strip().lower() == tag.lower() or node.id == tag)
 
     @staticmethod
     def __get_node_tag(node: TubemapNode) -> str:
