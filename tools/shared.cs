@@ -75,6 +75,7 @@ public class UINode : Node
     public uint px = 0;
     public uint py = 0;
     public string label = "";
+    new public List<UIEdge> adjacencyList = new List<UIEdge>();
 
     public UINode(long id) : base(id) {}
 }
@@ -88,4 +89,11 @@ public class Edge
     {
         this.neighbouringNodeID = id;
     }
+}
+
+class UIEdge : Edge
+{
+    public string label { get; set; }
+
+    public UIEdge(long neighbouringNodeID) : base(neighbouringNodeID) {}
 }
