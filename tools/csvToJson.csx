@@ -164,48 +164,18 @@ foreach (Entry entry in entries)
 
 foreach (CSVEntry entry in csvEntries)
 {
-    string line = entry.Line;
     UINode node = graph.nodes.Find(n => n.label == entry.Station)!;
     UINode? nextNode = graph.nodes.Find(n => n.label == entry.NextStation);
     if (nextNode == null)
         continue;
 
-    UIEdge edge = new(nextNode.id)
+    Edge edge = new(nextNode.id)
     {
-        weight = uint.Parse(entry.Weight),
-        label = line
+        weight = uint.Parse(entry.Weight)
     };
 
     node.adjacencyList.Add(edge);
 }
-
-//Join duplicate nodes.
-IEnumerable<UINode> duplicateNodes = graph.nodes.GroupBy(n => n.label).Where(g => g.Count() > 1).SelectMany(g => g.Skip(1));
-foreach (UINode duplicateNode in duplicateNodes)
-{
-    UINode node = graph.nodes.Find(n => n.label == duplicateNode.label)!;
-    foreach (UIEdge edge in duplicateNode.adjacencyList)
-    {
-        UINode neighbouringNode = graph.nodes.Find(n => n.id == edge.neighbouringNodeID);
-        long neighbouringNodeID = edge.neighbouringNodeID;
-        if (duplicateNodes.Contains(neighbouringNode))
-            neighbouringNodeID = graph.nodes.Find(n => n.label == neighbouringNode.label)!.id;
-
-        UIEdge newEdge = new(neighbouringNodeID)
-        {
-            weight = edge.weight,
-            label = edge.label
-        };
-
-        if (!node.adjacencyList.Contains(e =>
-            e.neighbouringNodeID == neighbouringNodeID
-            && e.weight == newEdge.weight
-            && e.label == newEdge.label))
-            node.adjacencyList.Add(newEdge);
-    }
-}
-foreach (UINode duplicateNode in duplicateNodes)
-    graph.nodes.Remove(duplicateNode);
 
 string json = JsonConvert.SerializeObject(graph, Formatting.Indented);
 Console.WriteLine(json);
