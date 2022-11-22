@@ -39,15 +39,15 @@ namespace CSVParser
                 string? nextStation = parts[2];
                 string? weight = parts[3];
 
-                if (string.IsNullOrEmpty(weight))
+                if (string.IsNullOrEmpty(line))
                     continue;
 
                 yield return new()
                 {
                     Line = line,
                     Station = station,
-                    NextStation = nextStation,
-                    Weight = weight
+                    NextStation = string.IsNullOrEmpty(nextStation) ? null : nextStation,
+                    Weight = string.IsNullOrEmpty(weight) ? "0" : weight
                 };
             }
         }

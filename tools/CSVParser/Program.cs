@@ -4,13 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using CSVParser.Shared;
-using CSVParser.Shared.Core;
 using CSVParser.Shared.UI;
-using System.Diagnostics;
 using CSVParser.Patchers;
 
 #nullable enable
@@ -46,12 +42,6 @@ namespace CSVParser
             //ParseData();
             PatchData();
 #endif
-        }
-
-        private static void Bayswater(UIGraph graph)
-        {
-            var a = graph.nodes.Where(n => n.label == "Bayswater"
-                || n.adjacencyList.Any(a => graph.nodes.Find(en => en.id == a.neighbouringNodeID)?.label == "Bayswater")).ToList();
         }
 
         private static void ParseData()
@@ -107,13 +97,19 @@ namespace CSVParser
                 if (nextNode == null)
                     continue;
 
-                UIEdge edge = new(nextNode.id)
+                UIEdge edge1 = new(nextNode.id)
                 {
                     weight = uint.Parse(entry.Weight),
                     label = line
                 };
+                node.adjacencyList.Add(edge1);
 
-                node.adjacencyList.Add(edge);
+                UIEdge edge2 = new(node.id)
+                {
+                    weight = uint.Parse(entry.Weight),
+                    label = line
+                };
+                nextNode.adjacencyList.Add(edge2);
             }
 
             //Remove the nodes that have no edges.

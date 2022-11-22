@@ -101,7 +101,7 @@ namespace CSVParser
                 {
                     Line = csvEntry.Line.Trim(),
                     Station = csvEntry.Station.Trim(),
-                    NextStation = csvEntry.NextStation!.Trim(),
+                    NextStation = csvEntry.NextStation?.Trim(),
                     Weight = csvEntry.Weight,
                     PX = px,
                     PY = py

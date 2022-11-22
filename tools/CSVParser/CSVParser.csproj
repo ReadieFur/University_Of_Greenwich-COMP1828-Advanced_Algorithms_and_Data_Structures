@@ -65,7 +65,6 @@
     <Compile Include="UIEntry.cs" />
     <Compile Include="OCR.cs" />
     <Compile Include="OCREntry.cs" />
-    <Compile Include="Patchers\EdgePatcher.cs" />
     <Compile Include="Patchers\UIPatcher.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

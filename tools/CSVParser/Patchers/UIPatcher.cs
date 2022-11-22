@@ -16,13 +16,13 @@ namespace CSVParser.Patchers
             {
                 UINode? patchNode = patchData.nodes.Find(n => n.label.Trim() == node.label.Trim());
                 if (patchNode == null)
-                    return;
+                    continue;
 
                 node.px = patchNode.px;
                 node.py = patchNode.py;
             }
 
-            File.WriteAllText("./london_underground_data-ui-patched.json", JsonConvert.SerializeObject(sourceData));
+            File.WriteAllText("./london_underground_data-ui-patched.json", JsonConvert.SerializeObject(sourceData, Formatting.Indented));
         }
     }
 }
