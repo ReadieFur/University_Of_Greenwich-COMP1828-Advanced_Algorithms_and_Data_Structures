@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define NO_CLI
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,6 +10,8 @@ using Newtonsoft.Json;
 using CSVParser.Shared;
 using CSVParser.Shared.Core;
 using CSVParser.Shared.UI;
+using System.Diagnostics;
+using CSVParser.Patchers;
 
 #nullable enable
 namespace CSVParser
@@ -16,6 +20,7 @@ namespace CSVParser
     {
         public static void Main(string[] args)
         {
+#if !NO_CLI
             while (true)
             {
                 Console.WriteLine("1. Parse data");
@@ -37,28 +42,37 @@ namespace CSVParser
                         break;
                 }
             }
+#else
+            //ParseData();
+            PatchData();
+#endif
+        }
+
+        private static void Bayswater(UIGraph graph)
+        {
+            var a = graph.nodes.Where(n => n.label == "Bayswater"
+                || n.adjacencyList.Any(a => graph.nodes.Find(en => en.id == a.neighbouringNodeID)?.label == "Bayswater")).ToList();
         }
 
         private static void ParseData()
         {
+#if !NO_CLI
             Console.WriteLine("Do OCR? (y/N)");
             bool doOCR = Console.ReadLine()?.ToLower() == "y";
+#else
+            bool doOCR = false;
+#endif
 
-            List<CSVEntry> entries = CSV.LoadCSV().ToList();
-
-            if (doOCR) entries = OCR.MatchValues(entries, OCR.DoOCR());
+            List<CSVEntry> csvEntries = CSV.LoadCSV().ToList();
+            
+            List<UIEntry> entries;
+            if (doOCR)
+                entries = OCR.MatchValues(csvEntries, OCR.DoOCR()).ToList();
             else
-            {
-                try
-                {
-                    entries = OCR.MatchValues(entries,
-                        JsonConvert.DeserializeObject<List<OCREntry>>(File.ReadAllText("ocrEntries.json"))!);
-                }
-                catch
-                {
-                    Console.WriteLine("Couldn't find an existing parsed OCR file, node positions will not be set.");
-                }
-            }
+                //OCR must have been run at least once if this this statment is reached.
+                entries = OCR.MatchValues(csvEntries, JsonConvert.DeserializeObject<List<OCREntry>>(File.ReadAllText("ocrEntries.json"))!).ToList();
+
+            var a = entries.Where(e => e.Station == "Bayswater" || e.NextStation == "Bayswater").ToList();
 
             UIGraph graph = new();
             graph.canvasImage = File.ReadAllText("./standard-tube-map-1.png.base64");
@@ -67,10 +81,8 @@ namespace CSVParser
             Random random = new(1);
             List<long> ids = new();
 
-            foreach (CSVEntry entry in entries)
+            foreach (UIEntry entry in entries)
             {
-                UIEntry? uiEntry = entry as UIEntry;
-
                 long id;
                 do id = Convert.ToInt64(Math.Floor((double)random.Next(0, int.MaxValue)));
                 while (ids.Contains(id));
@@ -80,8 +92,8 @@ namespace CSVParser
 
                 UINode node = new(id)
                 {
-                    px = Convert.ToUInt32(uiEntry?.PX),
-                    py = Convert.ToUInt32(uiEntry?.PY),
+                    px = Convert.ToUInt32(entry.PX),
+                    py = Convert.ToUInt32(entry.PY),
                     label = entry.Station
                 };
                 graph.nodes.Add(node);
@@ -104,42 +116,17 @@ namespace CSVParser
                 node.adjacencyList.Add(edge);
             }
 
-            //Join duplicate nodes.
-            IEnumerable<UINode> duplicateNodes = graph.nodes.GroupBy(n => n.label).Where(g => g.Count() > 1).SelectMany(g => g.Skip(1));
-            foreach (UINode duplicateNode in duplicateNodes)
-            {
-                UINode node = graph.nodes.Find(n => n.label == duplicateNode.label)!;
-                foreach (UIEdge edge in duplicateNode.adjacencyList)
-                {
-                    UINode neighbouringNode = graph.nodes.Find(n => n.id == edge.neighbouringNodeID);
-                    long neighbouringNodeID = edge.neighbouringNodeID;
-                    if (duplicateNodes.Contains(neighbouringNode))
-                        neighbouringNodeID = graph.nodes.Find(n => n.label == neighbouringNode.label)!.id;
-
-                    UIEdge newEdge = new(neighbouringNodeID)
-                    {
-                        weight = edge.weight,
-                        label = edge.label
-                    };
-
-                    if (!node.adjacencyList.Any(e =>
-                        e.neighbouringNodeID == neighbouringNodeID
-                        && e.weight == newEdge.weight
-                        && e.label == newEdge.label))
-                        node.adjacencyList.Add(newEdge);
-                }
-            }
-            foreach (UINode duplicateNode in duplicateNodes)
-                graph.nodes.Remove(duplicateNode);
+            //Remove the nodes that have no edges.
+            graph.nodes.RemoveAll(n => n.adjacencyList.Count == 0);
 
             string json = JsonConvert.SerializeObject(graph, Formatting.Indented);
             Console.WriteLine(json);
             File.WriteAllText("./london_underground_data-auto.json", json);
-
         }
 
         private static void PatchData()
         {
+            UIPatcher.Patch();
         }
     }
 }

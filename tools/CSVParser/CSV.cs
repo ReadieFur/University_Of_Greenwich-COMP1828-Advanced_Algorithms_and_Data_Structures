@@ -11,8 +11,27 @@ namespace CSVParser
         {
             foreach (string fileLine in File.ReadAllLines(path))
             {
-                string[] parts = fileLine.Split(',');
-                if (parts.Length != 4)
+                //Split on comma but not if comma is inside quotes.
+                List<string> parts = new();
+                string currentPart = string.Empty;
+                bool insideQuotes = false;
+                foreach (char c in fileLine)
+                {
+                    if (c == '"')
+                    {
+                        insideQuotes = !insideQuotes;
+                        continue;
+                    }
+                    if (c == ',' && !insideQuotes)
+                    {
+                        parts.Add(currentPart);
+                        currentPart = string.Empty;
+                        continue;
+                    }
+                    currentPart += c;
+                }
+                parts.Add(currentPart);
+                if (parts.Count != 4)
                     continue;
 
                 string? line = parts[0];

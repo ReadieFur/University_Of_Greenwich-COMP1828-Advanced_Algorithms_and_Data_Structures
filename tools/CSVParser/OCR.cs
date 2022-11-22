@@ -48,7 +48,7 @@ namespace CSVParser
 
                     ocrEntries.Add(new()
                     {
-                        Text = word,
+                        Text = word.Trim(),
                         //BoundingBox = new Rectangle(rect.X1, rect.Y1, rect.Width, rect.Height),
                         PX = rect.X1,
                         PY = rect.Y1,
@@ -99,9 +99,9 @@ namespace CSVParser
 
                 yield return new()
                 {
-                    Line = csvEntry.Line,
-                    Station = csvEntry.Station,
-                    NextStation = csvEntry.NextStation,
+                    Line = csvEntry.Line.Trim(),
+                    Station = csvEntry.Station.Trim(),
+                    NextStation = csvEntry.NextStation!.Trim(),
                     Weight = csvEntry.Weight,
                     PX = px,
                     PY = py
