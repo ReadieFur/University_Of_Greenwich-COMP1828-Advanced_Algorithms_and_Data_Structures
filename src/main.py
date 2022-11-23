@@ -140,6 +140,7 @@ class Program:
             Program.print(("line info", 'yellow'), (" [station1] [station2] [line]", 'magenta'), "\n\tShows if a line is closed or not between the specified stations.")
             Program.print(("line open", 'yellow'), (" [station1] [station2] [line]", 'magenta'), "\n\tOpens a line.")
             Program.print(("line close", 'yellow'), (" [station1] [station2] [line]", 'magenta'), "\n\tCloses a line.")
+            return
 
         if len(args) < 3:
             Program.print((f"Invalid syntax.", 'red'))
@@ -168,15 +169,21 @@ class Program:
         node2_tag = Program.__get_tag(node2)
         edge_tag = Program.__get_tag(edge)
 
-        prefix = Program.build_coloured_string("The Line between ", (f"'{node1_tag}'", 'green'), " and ", (f"'{node2_tag}'", 'green'), " via ", (f"'{edge_tag}'", 'green'), " is")
+        prefix = Program.build_coloured_string("The Line between ", (f"'{node1_tag}'", 'green'), " and ", (f"'{node2_tag}'", 'green'), " via ", (f"'{edge_tag}'", 'cyan'), " is")
         if args[0] == "info":
-            Program.print(f"{prefix} ", ("closed" if edge.closed else "open", 'cyan'), ".")
+            # Program.print(f"{prefix} ", ("closed" if edge.closed else "open", 'cyan'), ".")
+            info_str = f"{prefix} "
+            if edge.closed:
+                info_str += Program.build_coloured_string(("closed", 'red'))
+            else:
+                info_str += Program.build_coloured_string(("open", 'green'), " and will take ", (f"{edge.weight}", 'cyan'), " minutes to travel between")
+            Program.print(info_str, ".")
         elif args[0] == "open":
             edge.closed = False
-            Program.print(f"{prefix} now ", ("open", 'cyan'), ".")
+            Program.print(f"{prefix} now ", ("open", 'green'), ".")
         elif args[0] == "close":
             edge.closed = True
-            Program.print(f"{prefix} now ", ("closed", 'cyan'), ".")
+            Program.print(f"{prefix} now ", ("closed", 'red'), ".")
         else:
             Program.print((f"Invalid syntax.", 'red'))
 
@@ -259,7 +266,7 @@ class Program:
         """Finds the shortest route between the set start and end nodes using the specified algorithm."""
         if show_help:
             Program.print("Finds the shortest route between the set start and end nodes using the specified algorithm.")
-            Program.print("Usage:", ("go", 'yellow'))
+            Program.print("Usage: ", ("go", 'yellow'))
             return
 
         if Program.__start_node is None:
@@ -321,7 +328,7 @@ class Program:
         """Clears the console."""
         if show_help:
             Program.print("Clears the console.")
-            Program.print("Usage:", ("clear", 'yellow'))
+            Program.print("Usage: ", ("clear", 'yellow'))
             return
 
         os.system("cls" if os.name == "nt" else "clear")
@@ -331,7 +338,7 @@ class Program:
         """Exits the program."""
         if show_help:
             Program.print("Exits the program.")
-            Program.print("Usage:", ("exit", 'yellow'))
+            Program.print("Usage: ", ("exit", 'yellow'))
         else:
             exit()
 
