@@ -314,7 +314,7 @@ class Program:
         path_string += Program.build_coloured_string(f"Ride ", (f"{stops_between_lines}", 'cyan'), f" {'stop' if stops_between_lines == 1 else 'stops'} to ", (f"'{Program.__get_tag(path_part_array[len(path_part_array) - 1].node)}'", 'cyan'), " where you will arrive at your destination.")
         #endregion
 
-        Program.print(f"The shortest route from ", (f"'{Program.__get_tag(Program.__start_node)}'", 'green'), " to ", (f"'{Program.__get_tag(Program.__end_node)}'", 'green'), f" has a duration of ", (f"{weight}", 'green'), " minutes.\n{path_string}")
+        Program.print("The shortest route from ", (f"'{Program.__get_tag(Program.__start_node)}'", 'green'), " to ", (f"'{Program.__get_tag(Program.__end_node)}'", 'green'), " has a duration of ", (weight, 'green'), f" minutes.\n{path_string}")
 
     @staticmethod
     def __command_clear(args: List[str], show_help = False) -> None:
