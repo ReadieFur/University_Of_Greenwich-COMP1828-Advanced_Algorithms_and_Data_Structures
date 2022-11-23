@@ -35,10 +35,10 @@ class Program:
 
     def __cli() -> None:
         """The command line interface for the program (also the main loop)."""
-        print(f"{Program.INFO['name']} v{Program.INFO['version']} by {Program.INFO['author']}")
+        print(f"{Program.get_colour_string('magenta')}{Program.INFO['name']} {Program.get_colour_string('cyan')}v{Program.INFO['version']}{Program.get_colour_string()} by {Program.get_colour_string('green')}{Program.INFO['author']}{Program.get_colour_string()}")
 
-        print("Type 'help' for a list of commands.")
-        print("Type 'exit' to exit the program.")
+        print(f"Type {Program.get_colour_string('yellow')}'help'{Program.get_colour_string()} for a list of commands.")
+        print(f"Type {Program.get_colour_string('yellow')}'exit'{Program.get_colour_string()} to exit the program.")
 
         COMMANDS = {
             # "help",
@@ -53,7 +53,7 @@ class Program:
         }
 
         while True:
-            command = input("> ").lower()
+            command = input(f"{Program.get_colour_string('yellow')}>{Program.get_colour_string()} ").lower()
 
             command_prefix = command.split(" ")[0]
             #The following splits the remaining args on spaces like the above but joins strings back together between quotes.
@@ -78,42 +78,42 @@ class Program:
 
             if command_prefix == "help":
                 if len(command_args) == 0:
-                    print("Command syntax: [required] <optional>")
-                    print(f"For help with sub-commands, type: help [command]")
+                    print(f"Command syntax: {Program.get_colour_string('magenta')}[required]{Program.get_colour_string()} {Program.get_colour_string('cyan')}<optional>{Program.get_colour_string()}")
+                    print(f"For help with sub-commands, type: {Program.get_colour_string('yellow')}help{Program.get_colour_string()} {Program.get_colour_string('magenta')}[command]{Program.get_colour_string()}")
                     print("Commands:")
                     for command in COMMANDS:
-                        print(f"{command}")
+                        print(f"- {Program.get_colour_string('yellow')}{command}{Program.get_colour_string()}")
                 else:
                     if command_args[0] not in COMMANDS:
-                        print("Invalid command.")
+                        print(f"{Program.get_colour_string('red')}Invalid command.{Program.get_colour_string()}")
                     else:
                         COMMANDS[command_args[0]](command_args, True)
             elif command_prefix in COMMANDS:
                 COMMANDS[command_prefix](command_args)
             else:
-                print("Invalid command.")
+                print(f"{Program.get_colour_string('red')}Invalid command.{Program.get_colour_string()}")
 
     def __command_list(args: List[str], show_help: bool = False) -> None:
         """Lists the nodes in the graph."""
         if show_help:
             print("Lists all nodes in the graph with the lines to their neighbours.")
-            print("Usage: list")
+            print(f"Usage: {Program.get_colour_string('yellow')}list{Program.get_colour_string()}")
             return
 
         buffer: List[(str, str)] = []
 
         for node in Program.__graph.nodes.values():
-            info = [Program.__get_tag(node), ""]
+            info = [f"{Program.get_colour_string('green')}{Program.__get_tag(node)}{Program.get_colour_string()}", ""]
 
             line_buffer = []
             for neibouring_node_id, edges in node.adjacency_dict.items():
                 neibouring_node = Program.__graph.nodes[neibouring_node_id]
-                neighbour_string = Program.__get_tag(neibouring_node)
+                neighbour_string = f"{Program.get_colour_string('green')}{Program.__get_tag(neibouring_node)}"
 
-                neighbour_string += " (via"
+                neighbour_string += f" {Program.get_colour_string()}(via"
                 for edge in edges.values():
-                    neighbour_string += f" {Program.__get_tag(edge)},"
-                neighbour_string = neighbour_string[:-1] + ")"
+                    neighbour_string += f" {Program.get_colour_string('cyan')}{Program.__get_tag(edge)}{Program.get_colour_string()},"
+                neighbour_string = f"{neighbour_string[:-1]}){Program.get_colour_string()}"
 
                 line_buffer.append(neighbour_string)
 
@@ -136,9 +136,9 @@ class Program:
         if show_help:
             print("Shows or updates the properties of a line.")
             print("Usage:")
-            print("line info [station1] [station2] [line]\n\tShows if a line is closed or not between the specified stations.")
-            print("line open [station1] [station2] [line]\n\tOpens a line.")
-            print("line close [station1] [station2] [line]\n\tCloses a line.")
+            print(f"{Program.get_colour_string('yellow')}line info {Program.get_colour_string('magenta')}[station1] [station2] [line]{Program.get_colour_string()}\n\tShows if a line is closed or not between the specified stations.")
+            print(f"{Program.get_colour_string('yellow')}line open {Program.get_colour_string('magenta')}[station1] [station2] [line]{Program.get_colour_string()}\n\tOpens a line.")
+            print(f"{Program.get_colour_string('yellow')}line close {Program.get_colour_string('magenta')}[station1] [station2] [line]{Program.get_colour_string()}\n\tCloses a line.")
 
         if len(args) < 3:
             print("Invalid syntax.")
@@ -148,36 +148,37 @@ class Program:
         node2 = Program.__get_node_from_label_or_id(args[2])
 
         if node1 is None:
-            print("Invalid first station.")
+            print(f"{Program.get_colour_string('red')}Invalid first station.{Program.get_colour_string()}")
             return
         if node2 is None:
-            print("Invalid second station.")
+            print(f"{Program.get_colour_string('red')}Invalid second station.{Program.get_colour_string()}")
             return
 
         if node2.id not in node1.adjacency_dict:
-            print("The two stations are not connected.")
+            print(f"{Program.get_colour_string('red')}The two stations are not connected.{Program.get_colour_string()}")
             return
 
         edge = Program.__get_edge_from_label_or_id(node1, node2, args[3])
         if edge is None:
-            print("The two stations do not have a connection on the specified line.")
+            print(f"{Program.get_colour_string('red')}The two stations do not have a connection on the specified line.{Program.get_colour_string()}")
             return
 
         node1_tag = Program.__get_tag(node1)
         node2_tag = Program.__get_tag(node2)
         edge_tag = Program.__get_tag(edge)
 
-        prefix = f"The Line between '{node1_tag}' and '{node2_tag}' via '{edge_tag}' is"
+        prefix = f"The Line between {Program.get_colour_string('green')}'{node1_tag}'{Program.get_colour_string()} and {Program.get_colour_string('green')}'{node2_tag}'{Program.get_colour_string()} via {Program.get_colour_string('green')}'{edge_tag}'{Program.get_colour_string()} is"
         if args[0] == "info":
-            print(f"{prefix} {'closed' if edge.closed else 'open'}.")
+            print(f"{prefix} {Program.get_colour_string('cyan')}{'closed' if edge.closed else 'open'}.")
         elif args[0] == "open":
             edge.closed = False
-            print(f"{prefix} now open.")
+            print(f"{prefix} now {Program.get_colour_string('cyan')}open.")
         elif args[0] == "close":
             edge.closed = True
-            print(f"{prefix} now closed.")
+            print(f"{prefix} now {Program.get_colour_string('cyan')}closed.")
         else:
-            print("Invalid syntax.")
+            print(f"{Program.get_colour_string('red')}Invalid syntax.")
+        print(Program.get_colour_string(), end="")
 
     @staticmethod
     def __command_start(args: List[str], show_help = False) -> None:
@@ -185,24 +186,25 @@ class Program:
         if show_help:
             print("Sets the station to start at.")
             print("Usage:")
-            print("start\n\tShows the current start station.")
-            print("start [station]\n\tSets the start station.")
+            print(f"{Program.get_colour_string('yellow')}start{Program.get_colour_string()}\n\tShows the current start station.")
+            print(f"{Program.get_colour_string('yellow')}start {Program.get_colour_string('magenta')}[station]{Program.get_colour_string()}\n\tSets the start station.")
             return
 
         if len(args) < 1:
             if Program.__start_node is None:
-                print("The start station has not been set.")
+                print(f"{Program.get_colour_string('red')}The start station has not been set.")
             else:
-                print(f"The start station is '{Program.__get_tag(Program.__start_node)}'.")
+                print(f"The start station is {Program.get_colour_string('green')}'{Program.__get_tag(Program.__start_node)}'.")
+            print(Program.get_colour_string(), end="")
             return
 
         node = Program.__get_node_from_label_or_id(args[0])
         if node is None:
-            print("Invalid station.")
+            print(f"{Program.get_colour_string('red')}Invalid station.{Program.get_colour_string()}")
             return
 
         Program.__start_node = node
-        print(f"Start station set to '{Program.__get_tag(node)}'.")
+        print(f"Start station set to {Program.get_colour_string('green')}'{Program.__get_tag(node)}'{Program.get_colour_string()}.")
 
     @staticmethod
     def __command_end(args: List[str], show_help = False) -> None:
@@ -210,24 +212,25 @@ class Program:
         if show_help:
             print("Sets the station to end at.")
             print("Usage:")
-            print("end\n\tShows the current end station.")
-            print("end [station]\n\tSets the end station.")
+            print(f"{Program.get_colour_string('yellow')}end{Program.get_colour_string()}\n\tShows the current end station.")
+            print(f"{Program.get_colour_string('yellow')}end{Program.get_colour_string()} {Program.get_colour_string('magenta')}[station]{Program.get_colour_string()}\n\tSets the end station.")
             return
 
         if len(args) < 1:
             if Program.__end_node is None:
-                print("The end station has not been set.")
+                print(f"{Program.get_colour_string('red')}The end station has not been set.")
             else:
-                print(f"The end station is '{Program.__get_tag(Program.__end_node)}'.")
+                print(f"The end station is {Program.get_colour_string('green')}'{Program.__get_tag(Program.__end_node)}'.")
+            print(Program.get_colour_string(), end="")
             return
 
         node = Program.__get_node_from_label_or_id(args[0])
         if node is None:
-            print("Invalid station.")
+            print(f"{Program.get_colour_string('red')}Invalid station.{Program.get_colour_string()}")
             return
 
         Program.__end_node = node
-        print(f"End station set to '{Program.__get_tag(node)}'.")
+        print(f"End station set to {Program.get_colour_string('green')}'{Program.__get_tag(node)}'{Program.get_colour_string()}.")
 
     @staticmethod
     def __command_algorithm(args: List[str], show_help = False) -> None:
@@ -235,44 +238,45 @@ class Program:
         if show_help:
             print("Sets the algorithm to use.")
             print("Usage:")
-            print("algorithm\n\tShows the current algorithm.")
-            print("algorithm [algorithm]\n\tSets the algorithm.")
+            print(f"{Program.get_colour_string('yellow')}algorithm{Program.get_colour_string()}\n\tShows the current algorithm.")
+            print(f"{Program.get_colour_string('yellow')}algorithm {Program.get_colour_string('magenta')}[algorithm]{Program.get_colour_string()}\n\tSets the algorithm.")
             print("Algorithms:")
             for algorithm in Program.__ALGORITHMS:
-                print(f"\t{algorithm}")
+                print(f"- {Program.get_colour_string('cyan')}{algorithm}{Program.get_colour_string()}")
             return
 
         if len(args) < 1:
-            print(f"The current algorithm is '{Program.__ALGORITHMS[Program.__algorithm]}'.")
+            print(f"The current algorithm is {Program.get_colour_string('green')}'{Program.__ALGORITHMS[Program.__algorithm]}'{Program.get_colour_string()}.")
             return
 
         if args[0].lower() not in Program.__ALGORITHMS:
-            print("Invalid algorithm.")
+            print(f"{Program.get_colour_string('red')}Invalid algorithm.{Program.get_colour_string()}")
             return
 
         Program.__algorithm = args.index(args[0].lower())
-        print(f"Algorithm set to '{Program.__ALGORITHMS[Program.__algorithm]}'.")
+        print(f"Algorithm set to {Program.get_colour_string('green')}'{Program.__ALGORITHMS[Program.__algorithm]}'{Program.get_colour_string()}.")
 
     @staticmethod
     def __command_go(args: List[str], show_help = False) -> None:
         """Finds the shortest route between the set start and end nodes using the specified algorithm."""
         if show_help:
             print("Finds the shortest route between the set start and end nodes using the specified algorithm.")
-            print("Usage: go")
+            print(f"Usage: {Program.get_colour_string('yellow')}go{Program.get_colour_string()}")
+            return
 
         if Program.__start_node is None:
-            print("The start station has not been set.")
+            print(f"{Program.get_colour_string('red')}The start station has not been set.{Program.get_colour_string()}")
             return
         elif Program.__end_node is None:
-            print("The end station has not been set.")
+            print(f"{Program.get_colour_string('red')}The end station has not been set.{Program.get_colour_string()}")
             return
         elif Program.__start_node == Program.__end_node:
-            print("The start and end stations are the same.")
+            print(f"{Program.get_colour_string('red')}The start and end stations are the same.{Program.get_colour_string()}")
             return
 
         # if not GraphSearcher.is_path_available(Program.__start_node, Program.__end_node, True):
         if not TubemapGraphSearcher.is_path_available(Program.__graph, Program.__start_node, Program.__end_node):
-            print("No route is available between the start and end stations.")
+            print(f"{Program.get_colour_string('red')}No route is available between the start and end stations.{Program.get_colour_string()}")
             return
 
         path_part_array = []
@@ -286,7 +290,7 @@ class Program:
 
         #region Build the path string
         #region First node
-        path_string += f"Start at '{Program.__get_tag(path_part_array[0].node)}' on the '{Program.__get_tag(path_part_array[0].edge)}' line.\n"
+        path_string += f"Start at {Program.get_colour_string('cyan')}'{Program.__get_tag(path_part_array[0].node)}'{Program.get_colour_string()} on the {Program.get_colour_string('cyan')}'{Program.__get_tag(path_part_array[0].edge)}'{Program.get_colour_string()} line.\n"
         current_line = Program.__get_tag(path_part_array[0].edge)
         stops_between_lines += 1
         #endregion
@@ -300,8 +304,8 @@ class Program:
 
                 edge_tag = Program.__get_tag(current_part.edge)
                 if current_line != edge_tag:
-                    path_string += f"Ride {stops_between_lines} {'stop' if stops_between_lines == 1 else 'stops'} to '{Program.__get_tag(current_part.node)}'.\n"
-                    path_string += f"Change to the '{edge_tag}' line.\n"
+                    path_string += f"Ride {Program.get_colour_string('cyan')}{stops_between_lines}{Program.get_colour_string()} {'stop' if stops_between_lines == 1 else 'stops'} to {Program.get_colour_string('cyan')}'{Program.__get_tag(current_part.node)}'{Program.get_colour_string()}.\n"
+                    path_string += f"Change to the {Program.get_colour_string('cyan')}{Program.get_colour_string('cyan')}'{edge_tag}'{Program.get_colour_string()}{Program.get_colour_string()} line.\n"
                     current_line = edge_tag
                     stops_between_lines = 0
 
@@ -309,17 +313,17 @@ class Program:
         #endregion
 
         #region Last node
-        path_string += f"Ride {stops_between_lines} stops to {Program.__get_tag(path_part_array[len(path_part_array) - 1].node)} where you will arrive at your destination."
+        path_string += f"Ride {Program.get_colour_string('cyan')}{stops_between_lines}{Program.get_colour_string()} stops to {Program.get_colour_string('cyan')}'{Program.__get_tag(path_part_array[len(path_part_array) - 1].node)}'{Program.get_colour_string()} where you will arrive at your destination."
         #endregion
 
-        print(f"The shortest route from '{Program.__get_tag(Program.__start_node)}' to '{Program.__get_tag(Program.__end_node)}' has a duration of {weight} minutes.\n{path_string}")
+        print(f"The shortest route from {Program.get_colour_string('green')}'{Program.__get_tag(Program.__start_node)}'{Program.get_colour_string()} to {Program.get_colour_string('green')}'{Program.__get_tag(Program.__end_node)}{Program.get_colour_string()}' has a duration of {Program.get_colour_string('green')}{weight}{Program.get_colour_string()} minutes.\n{path_string}")
 
     @staticmethod
     def __command_clear(args: List[str], show_help = False) -> None:
         """Clears the console."""
         if show_help:
             print("Clears the console.")
-            print("Usage: clear")
+            print(f"Usage: {Program.get_colour_string('yellow')}clear{Program.get_colour_string()}")
             return
 
         os.system("cls" if os.name == "nt" else "clear")
@@ -329,7 +333,7 @@ class Program:
         """Exits the program."""
         if show_help:
             print("Exits the program.")
-            print("Usage: exit")
+            print(f"Usage: {Program.get_colour_string('yellow')}exit{Program.get_colour_string()}")
         else:
             exit()
 
