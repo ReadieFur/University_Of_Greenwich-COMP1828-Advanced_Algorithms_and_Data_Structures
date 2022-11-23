@@ -2,12 +2,12 @@
 
 namespace CSVParser.Shared.Core
 {
-    public class Node
+    public class SerializedNode
     {
         public long id;
-        public List<Edge> adjacencyList = new List<Edge>();
+        public Dictionary<long, List<SerializedEdge>> adjacencyList = new();
 
-        public Node(long id)
+        public SerializedNode(long id)
         {
             this.id = id;
         }

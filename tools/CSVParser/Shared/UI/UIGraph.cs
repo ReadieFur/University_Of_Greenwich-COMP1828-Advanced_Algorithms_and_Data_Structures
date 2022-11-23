@@ -4,7 +4,7 @@ using CSVParser.Shared.Core;
 #nullable enable
 namespace CSVParser.Shared.UI
 {
-    public class UIGraph : Graph
+    public class UIGraph : SerializedGraph
     {
         public string? canvasImage = null;
         public int? nodeRadius = null;

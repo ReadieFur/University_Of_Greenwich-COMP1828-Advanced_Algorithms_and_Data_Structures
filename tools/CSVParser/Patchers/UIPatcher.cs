@@ -10,7 +10,7 @@ namespace CSVParser.Patchers
         public static void Patch()
         {
             UIGraph sourceData = JsonConvert.DeserializeObject<UIGraph>(File.ReadAllText("./london_underground_data-auto.json"))!;
-            UIGraph patchData = JsonConvert.DeserializeObject<UIGraph>(File.ReadAllText("./london_underground_data-ui-patch-data.json"))!;
+            UIGraph patchData = JsonConvert.DeserializeObject<UIGraph>(File.ReadAllText("./london_underground_data-ui-patch-data-multigraph.json"))!;
 
             foreach (UINode node in sourceData.nodes)
             {

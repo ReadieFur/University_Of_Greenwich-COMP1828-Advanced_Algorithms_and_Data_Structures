@@ -69,8 +69,8 @@ namespace CSVParser
             graph.nodeRadius = 15;
 
             Random random = new(1);
-            List<long> ids = new();
 
+            List<long> ids = new();
             foreach (UIEntry entry in entries)
             {
                 long id;
@@ -89,6 +89,7 @@ namespace CSVParser
                 graph.nodes.Add(node);
             }
 
+            List<long> edgeIDs = new();
             foreach (CSVEntry entry in entries)
             {
                 string line = entry.Line;
@@ -97,19 +98,24 @@ namespace CSVParser
                 if (nextNode == null)
                     continue;
 
-                UIEdge edge1 = new(nextNode.id)
-                {
-                    weight = uint.Parse(entry.Weight),
-                    label = line
-                };
-                node.adjacencyList.Add(edge1);
+                long id;
+                do id = Convert.ToInt64(Math.Floor((double)random.Next(0, int.MaxValue)));
+                while (edgeIDs.Contains(id));
+                edgeIDs.Add(id);
 
-                UIEdge edge2 = new(node.id)
+                UIEdge edge = new(id)
                 {
                     weight = uint.Parse(entry.Weight),
                     label = line
                 };
-                nextNode.adjacencyList.Add(edge2);
+
+                if (!node.adjacencyList.ContainsKey(nextNode.id))
+                    node.adjacencyList.Add(nextNode.id, new());
+                if (!nextNode.adjacencyList.ContainsKey(node.id))
+                    nextNode.adjacencyList.Add(node.id, new());
+
+                node.adjacencyList[nextNode.id].Add(edge);
+                nextNode.adjacencyList[node.id].Add(edge);
             }
 
             //Remove the nodes that have no edges.
@@ -122,6 +128,7 @@ namespace CSVParser
 
         private static void PatchData()
         {
+            //ToMultigraph.Convert();
             UIPatcher.Patch();
         }
     }

@@ -2,10 +2,10 @@
 
 namespace CSVParser.Shared.UI
 {
-    public class UIEdge : Edge
+    public class UIEdge : SerializedEdge
     {
         public string label { get; set; }
 
-        public UIEdge(long neighbouringNodeID) : base(neighbouringNodeID) {}
+        public UIEdge(long id) : base(id) {}
     }
 }
