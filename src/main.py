@@ -48,6 +48,7 @@ class Program:
             "end": Program.__command_end,
             "algorithm": Program.__command_algorithm,
             "go": Program.__command_go,
+            "clear": Program.__command_clear,
             "exit": Program.__command_exit
         }
 
@@ -265,6 +266,9 @@ class Program:
         elif Program.__end_node is None:
             print("The end station has not been set.")
             return
+        elif Program.__start_node == Program.__end_node:
+            print("The start and end stations are the same.")
+            return
 
         # if not GraphSearcher.is_path_available(Program.__start_node, Program.__end_node, True):
         if not TubemapGraphSearcher.is_path_available(Program.__graph, Program.__start_node, Program.__end_node):
@@ -278,23 +282,47 @@ class Program:
         weight = 0
         path_string = ""
         current_line = ""
-        for i in range(len(path_part_array)):
+        stops_between_lines = 0
+
+        #region Build the path string
+        #region First node
+        path_string += f"Start at '{Program.__get_tag(path_part_array[0].node)}' on the '{Program.__get_tag(path_part_array[0].edge)}' line.\n"
+        current_line = Program.__get_tag(path_part_array[0].edge)
+        stops_between_lines += 1
+        #endregion
+
+        #region Middle nodes
+        for i in range(1, len(path_part_array) - 1):
             current_part = path_part_array[i]
 
-            line_label = ""
             if current_part.edge is not None:
                 weight += current_part.edge.weight
-                __line_label = Program.__get_tag(current_part.edge)
-                if __line_label != current_line:
-                    line_label = f" (switch to {__line_label} line) >"
-                    current_line = __line_label
 
-            path_string += Program.__get_tag(current_part.node)
+                edge_tag = Program.__get_tag(current_part.edge)
+                if current_line != edge_tag:
+                    path_string += f"Ride {stops_between_lines} {'stop' if stops_between_lines == 1 else 'stops'} to '{Program.__get_tag(current_part.node)}'.\n"
+                    path_string += f"Change to the '{edge_tag}' line.\n"
+                    current_line = edge_tag
+                    stops_between_lines = 0
 
-            if i < len(path_part_array) - 1:
-                path_string += f" >{line_label} "
+                stops_between_lines += 1
+        #endregion
 
-        print(f"The shortest route from '{Program.__get_tag(Program.__start_node)}' to '{Program.__get_tag(Program.__end_node)}', with a duration of {weight} minutes, is: {path_string}")
+        #region Last node
+        path_string += f"Ride {stops_between_lines} stops to {Program.__get_tag(path_part_array[len(path_part_array) - 1].node)} where you will arrive at your destination."
+        #endregion
+
+        print(f"The shortest route from '{Program.__get_tag(Program.__start_node)}' to '{Program.__get_tag(Program.__end_node)}' has a duration of {weight} minutes.\n{path_string}")
+
+    @staticmethod
+    def __command_clear(args: List[str], show_help = False) -> None:
+        """Clears the console."""
+        if show_help:
+            print("Clears the console.")
+            print("Usage: clear")
+            return
+
+        os.system("cls" if os.name == "nt" else "clear")
 
     @staticmethod
     def __command_exit(args: List[str], show_help = False) -> None:
