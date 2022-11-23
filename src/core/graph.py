@@ -1,9 +1,9 @@
 from typing import Dict, List
-from collections import namedtuple
 import json
 from sys import maxsize as INT_MAX
 import random
 from .node import Node, SerializedNode, NODE_NOT_FOUND_ERROR
+from .node import Edge
 
 class SerializedGraph:
     def __init__(self) -> None:
@@ -18,10 +18,10 @@ class SerializedGraph:
 
     @staticmethod
     def from_json(json_string: str) -> "SerializedGraph":
-        #https://stackoverflow.com/questions/6578986/how-to-convert-json-data-into-a-python-object
-        # res = json.loads(json_string, object_hook=lambda d: SerializedGraph(**d)) #This would through an unexpected kwarg error.
-        obj = json.loads(json_string, object_hook=lambda d: namedtuple('X', d.keys())(*d.values()))
-        return obj
+        obj = json.loads(json_string)
+        graph = SerializedGraph()
+        graph.nodes = [SerializedNode.from_obj(node) for node in obj["nodes"]]
+        return graph
 
     @staticmethod
     def load_from_file(file_path: str) -> "Graph":
@@ -36,8 +36,14 @@ class Graph:
         """The nodes on the graph."""
         return self.__nodes
 
+    @property
+    def edge_list(self) -> Dict[int, tuple[Node, Node, Edge]]:
+        """The edges on the graph."""
+        return self.__edge_list
+
     def __init__(self) -> None:
         self.__nodes: Dict[int, Node] = {}
+        self.__edge_list: Dict[int, tuple[Node, Node, Edge]] = {}
 
     def add_node(self) -> Node:
         """Adds a node to the graph."""
@@ -55,25 +61,38 @@ class Graph:
         if node.id not in self.__nodes:
             raise KeyError(NODE_NOT_FOUND_ERROR)
 
-        for neighbor in node.adjacency_list.keys():
-            neighbor.remove_edge(node)
+        for neighbor in node.adjacency_dict.items():
+            self.nodes[neighbor[0]].remove_all_edges(node)
 
         del self.__nodes[node.id]
 
-    def add_edge(self, node1: Node, node2: Node, weight: int = 1) -> None:
+    def add_edge(self, node1: Node, node2: Node, weight: int, id: int | None = None) -> Edge:
         """Adds an edge to the graph."""
-        node1.add_edge(node2, weight)
-        node2.add_edge(node1, weight)
+        if id is None:
+            id = 0
+            while id == 0 or id in self.__edge_list:
+                id = random.randint(0, INT_MAX)
+        elif id in self.__edge_list:
+            raise KeyError(f"Edge with ID {id} already exists.")
 
-    def update_edge_weight(self, node1: Node, node2: Node, weight: int) -> None:
-        """Updates the weight of an edge in the graph."""
-        node1.update_edge_weight(node2, weight)
-        node2.update_edge_weight(node1, weight)
+        edge = Edge(id, weight)
+        self.__edge_list[id] = (node1, node2, edge)
 
-    def remove_edge(self, node1: Node, node2: Node) -> None:
+        node1.add_edge(node2, edge)
+        node2.add_edge(node1, edge)
+
+        return edge
+
+    def remove_edge(self, edge: Edge) -> None:
         """Removes an edge from the graph."""
-        node1.remove_edge(node2)
-        node2.remove_edge(node1)
+        if edge not in self.__edge_list:
+            raise KeyError(f"Edge with ID {edge.id} not found.")
+
+        node1, node2, _ = self.__edge_list[edge.id]
+        node1.remove_edge(node2, edge)
+        node2.remove_edge(node1, edge)
+
+        del self.__edge_list[edge.id]
 
     def serialize(self) -> SerializedGraph:
         serialized_graph = SerializedGraph()
@@ -90,8 +109,12 @@ class Graph:
 
         for serialized_node in serialized_graph.nodes:
             node = graph.nodes[serialized_node.id]
-            for edge in serialized_node.adjacencyList:
-                neighbouring_node = graph.nodes[edge.neighbouringNodeID]
-                node.add_edge(neighbouring_node, edge.weight)
+            for neighbour_node_id, serialized_edges in serialized_node.adjacencyList.items():
+                for serialized_edge in serialized_edges:
+                    neighbour_node = graph.nodes[int(neighbour_node_id)]
+                    try:
+                        graph.add_edge(node, neighbour_node, serialized_edge.weight, serialized_edge.id)
+                    except KeyError:
+                        pass
 
         return graph

@@ -4,7 +4,7 @@ from core.node import Node
 
 class GraphSearcher:
     @staticmethod
-    def _breadth_first_search(node: Node, visited: List[Node]) -> None:
+    def _breadth_first_search(graph: Graph, node: Node, visited: List[Node]) -> None:
         """
         This search will visit all unvisited, connected nodes in the order they were added to the graph.
         Meaning that it will visit nodes neighbors in a queue-like fashion.
@@ -22,11 +22,11 @@ class GraphSearcher:
             visited.append(current)
 
             #For each of the current node's neighbors, add them to the queue.
-            for neibouring_node in current.adjacency_list:
-                queue.append(neibouring_node)
+            for neibouring_node_id in current.adjacency_dict.keys():
+                queue.append(graph.nodes[neibouring_node_id])
 
     @staticmethod
-    def _depth_first_search(node: Node, visited: List[Node]) -> None:
+    def _depth_first_search(graph: Graph, node: Node, visited: List[Node]) -> None:
         """
         This search will visit all unvisited, connected nodes one after the other, recursively.
         Meaning that it will traverse one branch of the graph before moving on to the next.
@@ -38,8 +38,8 @@ class GraphSearcher:
         visited.append(node)
 
         #For each of the current node's neighbors, recursively call the DFS function.
-        for neibouring_node in node.adjacency_list:
-            GraphSearcher._depth_first_search(neibouring_node, visited)
+        for neibouring_node_id in node.adjacency_dict.keys():
+            GraphSearcher._depth_first_search(graph, graph.nodes[neibouring_node_id], visited)
 
     @staticmethod
     def is_graph_connected(graph: Graph, useBFS: bool) -> bool:
@@ -49,21 +49,21 @@ class GraphSearcher:
         visited: List[Node] = []
 
         if useBFS:
-            GraphSearcher._breadth_first_search(starting_node, visited)
+            GraphSearcher._breadth_first_search(graph, starting_node, visited)
         else:
-            GraphSearcher._depth_first_search(starting_node, visited)
+            GraphSearcher._depth_first_search(graph, starting_node, visited)
 
         #We can tell if a graph is connected if the search returns a list of nodes whos size is equal to the number of nodes in the graph.
         return len(visited) == len(graph.nodes)
 
     @staticmethod
-    def is_path_available(start: Node, end: Node, useBFS: bool) -> bool:
+    def is_path_available(graph: Graph, start: Node, end: Node, useBFS: bool) -> bool:
         visited: List[Node] = []
 
         if useBFS:
-            GraphSearcher._breadth_first_search(start, visited)
+            GraphSearcher._breadth_first_search(graph, start, visited)
         else:
-            GraphSearcher._depth_first_search(start, visited)
+            GraphSearcher._depth_first_search(graph, start, visited)
 
         #We can tell if a path is available if the search returns a list of nodes that contains the end node.
         return end in visited

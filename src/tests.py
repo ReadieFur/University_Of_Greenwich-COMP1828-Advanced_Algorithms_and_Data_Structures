@@ -10,9 +10,9 @@ class JsonTests:
         n1 = graph.add_node()
         n2 = graph.add_node()
         graph.add_edge(n1, n2, 1)
-        graph.serialize().save_to_file("./src/test_graph.json")
-        #Add a breakpoint on the line below and compare loaded result to the one above.
-        loaded_graph = SerializedGraph.load_from_file("./src/test_graph.json")
+        graph.serialize().save_to_file("./test_graph.json")
+
+        loaded_graph = SerializedGraph.load_from_file("./test_graph.json")
         return #This line is here to place a breakpoint on so that I can see the result before the method returns.
 
 if __name__ == "__main__":

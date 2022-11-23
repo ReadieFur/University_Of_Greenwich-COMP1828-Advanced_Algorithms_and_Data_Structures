@@ -1,34 +1,34 @@
-#Avoid circular import (this import is only used for IDE type hinting).
-#https://stackoverflow.com/questions/39740632/python-type-hinting-without-cyclic-imports
-from __future__ import annotations
-from typing import TYPE_CHECKING
-if TYPE_CHECKING:
-    from .node import Node
+from typing import Dict, Any
 
 class SerializedEdge:
     def __init__(self) -> None:
-        self.neighbouringNodeID: int = 0
+        self.id: int = 0
         self.weight: int = 0
+
+    @staticmethod
+    def from_obj(obj: Dict[str, Any]) -> "SerializedEdge":
+        edge = SerializedEdge()
+        edge.id = obj["id"]
+        edge.weight = obj["weight"]
+        return edge
 
 class Edge:
     #Public get, private set.
     @property
-    def neibouring_node(self) -> Node:
-        """The neibouring that this edge is connected to."""
-        return self.__neibouring_node
+    def id(self) -> int:
+        """The id of the edge."""
+        return self.__id
 
-    def __init__(self, neibouring_node: Node, weight: int = 1):
-        self.__neibouring_node: Node = neibouring_node
+    def __init__(self, id: int, weight: int = 1):
+        self.__id: int = id
         self.weight: int = weight
 
     def serialize(self) -> SerializedEdge:
         serialized_edge = SerializedEdge()
-        serialized_edge.neighbouringNodeID = self.neibouring_node.id
+        serialized_edge.id = self.id
         serialized_edge.weight = self.weight
         return serialized_edge
 
     @staticmethod
-    def deserialize(serialized_edge: SerializedEdge, node: Node) -> Edge:
-        edge = Edge(node)
-        edge.weight = serialized_edge.weight
-        return edge
+    def deserialize(serialized_edge: SerializedEdge) -> "Edge":
+        return Edge(serialized_edge.id, serialized_edge.weight)

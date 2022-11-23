@@ -1,9 +1,8 @@
-from typing import Dict
+from typing import Dict, List
 from sys import maxsize as INT_MAX
-# from core.graph import Graph
-# from core.node import Node
 from tubemap.core.tubemap_graph import TubemapGraph
 from tubemap.core.tubemap_node import TubemapNode
+from algorithms.algorithm import PathPart
 from algorithms.dijkstras_algorithm import DijkstrasAlgorithm, DijkstraNode
 
 class TubemapDijkstraNode(DijkstraNode):
@@ -17,7 +16,7 @@ class TubemapDijkstraNode(DijkstraNode):
 
 class TubemapDijkstrasAlgorithm(DijkstrasAlgorithm):
     @staticmethod
-    def find_shortest_path(graph: TubemapGraph, start_node: TubemapNode, end_node: TubemapNode) -> TubemapDijkstraNode:
+    def find_shortest_path(graph: TubemapGraph, start_node: TubemapNode, end_node: TubemapNode) -> List[PathPart]:
         dijkstra_nodes: Dict[int, TubemapDijkstraNode] = {}
         for i in graph.nodes.keys():
             dijkstra_node = TubemapDijkstraNode(graph.nodes[i])
@@ -53,23 +52,25 @@ class TubemapDijkstrasAlgorithm(DijkstrasAlgorithm):
 
             #As the node we are working with past this point is boxed, if it is the node we are looking for, we can return here.
             if lightest_node_id == end_node.id:
-                return dijkstra_node
+                return DijkstrasAlgorithm._dijkstra_node_to_path_array(dijkstra_node)
 
             #region Update the path weight of this nodes unboxed neighbours.
-            for k in dijkstra_node.node.adjacency_list.items():
-                neighbouring_node = k[0]
-                edge = k[1]
-
-                dijkstra_edge_node = dijkstra_nodes[neighbouring_node.id]
+            for [neighbouring_node_id, edges] in dijkstra_node.node.adjacency_dict.items():
+                dijkstra_edge_node = dijkstra_nodes[neighbouring_node_id]
 
                 #If I haven't boxed this node and the new distance is less than the current distance + the edge weight...
-                if dijkstra_edge_node.is_boxed or dijkstra_node.path_weight + edge.weight >= dijkstra_edge_node.path_weight or edge.closed:
+                if dijkstra_edge_node.is_boxed:
                     continue
 
-                #Update the edge node's distance from the start node using the current shortest path + this edges weight.
-                dijkstra_edge_node.path_weight = dijkstra_node.path_weight + edge.weight
-                dijkstra_edge_node.previous_node = dijkstra_node
-            #endregion
+                for edge in edges.values():
+                    if dijkstra_node.path_weight + edge.weight >= dijkstra_edge_node.path_weight or edge.closed:
+                        continue
+
+                    #Update the edge node's distance from the start node using the current shortest path + this edges weight.
+                    dijkstra_edge_node.path_weight = dijkstra_node.path_weight + edge.weight
+                    dijkstra_edge_node.previous_node = dijkstra_node
+                    dijkstra_edge_node.previous_edge = edge
+        #endregion
 
         #If we do end somehow end up here, something has gone wrong.
         raise AssertionError(f"Failed to find a path from node '{start_node.id}' to node '{end_node.id}' on the specified graph.")

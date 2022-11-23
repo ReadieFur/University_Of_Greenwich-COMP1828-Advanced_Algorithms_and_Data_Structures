@@ -2,8 +2,7 @@ from typing import List, Callable
 import os
 from tubemap.core.tubemap_graph import TubemapGraph, SerializedTubemapGraph
 from tubemap.core.tubemap_node import TubemapNode
-# from algorithms.graph_searcher import GraphSearcher
-# from algorithms.dijkstras_algorithm import DijkstrasAlgorithm
+from tubemap.core.tubemap_edge import TubemapEdge
 from tubemap.algorithms.tubemap_graph_searcher import TubemapGraphSearcher
 from tubemap.algorithms.tubemap_dijkstras_algorithm import TubemapDijkstrasAlgorithm
 
@@ -103,11 +102,20 @@ class Program:
         buffer: List[(str, str)] = []
 
         for node in Program.__graph.nodes.values():
-            info = [Program.__get_node_tag(node), ""]
+            info = [Program.__get_tag(node), ""]
 
             line_buffer = []
-            for edge in node.adjacency_list:
-                line_buffer.append(Program.__get_node_tag(edge))
+            for neibouring_node_id, edges in node.adjacency_dict.items():
+                neibouring_node = Program.__graph.nodes[neibouring_node_id]
+                neighbour_string = Program.__get_tag(neibouring_node)
+
+                neighbour_string += " (via"
+                for edge in edges.values():
+                    neighbour_string += f" {Program.__get_tag(edge)},"
+                neighbour_string = neighbour_string[:-1] + ")"
+
+                line_buffer.append(neighbour_string)
+
             line_buffer.sort()
             info[1] = f"{', '.join(line_buffer)}"
 
@@ -127,9 +135,9 @@ class Program:
         if show_help:
             print("Shows or updates the properties of a line.")
             print("Usage:")
-            print("line info [station1] [station2]\n\tShows if a line is closed or not between the specified stations.")
-            print("line open [station1] [station2]\n\tOpens a line.")
-            print("line close [station1] [station2]\n\tCloses a line.")
+            print("line info [station1] [station2] [line]\n\tShows if a line is closed or not between the specified stations.")
+            print("line open [station1] [station2] [line]\n\tOpens a line.")
+            print("line close [station1] [station2] [line]\n\tCloses a line.")
 
         if len(args) < 3:
             print("Invalid syntax.")
@@ -145,19 +153,28 @@ class Program:
             print("Invalid second station.")
             return
 
-        edge = node1.adjacency_list.get(node2)
-        if edge is None:
-            print("Stations do not have a line between them.")
+        if node2.id not in node1.adjacency_dict:
+            print("The two stations are not connected.")
             return
 
+        edge = Program.__get_edge_from_label_or_id(node1, node2, args[3])
+        if edge is None:
+            print("The two stations do not have a connection on the specified line.")
+            return
+
+        node1_tag = Program.__get_tag(node1)
+        node2_tag = Program.__get_tag(node2)
+        edge_tag = Program.__get_tag(edge)
+
+        prefix = f"The Line between '{node1_tag}' and '{node2_tag}' via '{edge_tag}' is"
         if args[0] == "info":
-            print(f"Line between '{Program.__get_node_tag(node1)}' and '{Program.__get_node_tag(node2)}' is {'closed' if edge.closed else 'open'}.")
+            print(f"{prefix} {'closed' if edge.closed else 'open'}.")
         elif args[0] == "open":
             edge.closed = False
-            print(f"Line between '{Program.__get_node_tag(node1)}' and '{Program.__get_node_tag(node2)}' is now open.")
+            print(f"{prefix} now open.")
         elif args[0] == "close":
             edge.closed = True
-            print(f"Line between '{Program.__get_node_tag(node1)}' and '{Program.__get_node_tag(node2)}' is now closed.")
+            print(f"{prefix} now closed.")
         else:
             print("Invalid syntax.")
 
@@ -175,7 +192,7 @@ class Program:
             if Program.__start_node is None:
                 print("The start station has not been set.")
             else:
-                print(f"The start station is '{Program.__get_node_tag(Program.__start_node)}'.")
+                print(f"The start station is '{Program.__get_tag(Program.__start_node)}'.")
             return
 
         node = Program.__get_node_from_label_or_id(args[0])
@@ -184,7 +201,7 @@ class Program:
             return
 
         Program.__start_node = node
-        print(f"Start station set to '{Program.__get_node_tag(node)}'.")
+        print(f"Start station set to '{Program.__get_tag(node)}'.")
 
     @staticmethod
     def __command_end(args: List[str], show_help = False) -> None:
@@ -200,7 +217,7 @@ class Program:
             if Program.__end_node is None:
                 print("The end station has not been set.")
             else:
-                print(f"The end station is '{Program.__get_node_tag(Program.__end_node)}'.")
+                print(f"The end station is '{Program.__get_tag(Program.__end_node)}'.")
             return
 
         node = Program.__get_node_from_label_or_id(args[0])
@@ -209,7 +226,7 @@ class Program:
             return
 
         Program.__end_node = node
-        print(f"End station set to '{Program.__get_node_tag(node)}'.")
+        print(f"End station set to '{Program.__get_tag(node)}'.")
 
     @staticmethod
     def __command_algorithm(args: List[str], show_help = False) -> None:
@@ -237,10 +254,10 @@ class Program:
 
     @staticmethod
     def __command_go(args: List[str], show_help = False) -> None:
-        """Finds the shortest path between the set start and end nodes using the specified algorithm."""
+        """Finds the shortest route between the set start and end nodes using the specified algorithm."""
         if show_help:
-            print("Finds the shortest path between the set start and end nodes using the specified algorithm.")
-            print("Usage: calculate")
+            print("Finds the shortest route between the set start and end nodes using the specified algorithm.")
+            print("Usage: go")
 
         if Program.__start_node is None:
             print("The start station has not been set.")
@@ -250,25 +267,34 @@ class Program:
             return
 
         # if not GraphSearcher.is_path_available(Program.__start_node, Program.__end_node, True):
-        if not TubemapGraphSearcher.is_path_available(Program.__start_node, Program.__end_node):
-            print("No path is available between the start and end stations.")
+        if not TubemapGraphSearcher.is_path_available(Program.__graph, Program.__start_node, Program.__end_node):
+            print("No route is available between the start and end stations.")
             return
 
-        weight = 0
-        node_array = []
-
+        path_part_array = []
         if Program.__algorithm == 0:
-            # dijkstra_node = DijkstrasAlgorithm.find_shortest_path(Program.__graph, Program.__start_node, Program.__end_node)
-            dijkstra_node = TubemapDijkstrasAlgorithm.find_shortest_path(Program.__graph, Program.__start_node, Program.__end_node)
-            weight = dijkstra_node.path_weight
-            node_array = TubemapDijkstrasAlgorithm.dijkstra_node_to_node_array(dijkstra_node)
+            path_part_array = TubemapDijkstrasAlgorithm.find_shortest_path(Program.__graph, Program.__start_node, Program.__end_node)
 
-        buffer = []
-        for node in node_array:
-            buffer.append(Program.__get_node_tag(node))
-        path_string = " -> ".join(buffer)
+        weight = 0
+        path_string = ""
+        current_line = ""
+        for i in range(len(path_part_array)):
+            current_part = path_part_array[i]
 
-        print(f"The shortest path from '{Program.__get_node_tag(Program.__start_node)}' to '{Program.__get_node_tag(Program.__end_node)}', with a duration of {weight} minutes, is: {path_string}")
+            line_label = ""
+            if current_part.edge is not None:
+                weight += current_part.edge.weight
+                __line_label = Program.__get_tag(current_part.edge)
+                if __line_label != current_line:
+                    line_label = f" (switch to {__line_label} line) >"
+                    current_line = __line_label
+
+            path_string += Program.__get_tag(current_part.node)
+
+            if i < len(path_part_array) - 1:
+                path_string += f" >{line_label} "
+
+        print(f"The shortest route from '{Program.__get_tag(Program.__start_node)}' to '{Program.__get_tag(Program.__end_node)}', with a duration of {weight} minutes, is: {path_string}")
 
     @staticmethod
     def __command_exit(args: List[str], show_help = False) -> None:
@@ -280,7 +306,7 @@ class Program:
             exit()
 
     @staticmethod
-    def __get_node(predicate: Callable[[TubemapNode], bool]) -> TubemapNode:
+    def __get_node(predicate: Callable[[TubemapNode], bool]) -> TubemapNode | None:
         """Finds the first node in a graph matching against a predicate."""
         for node in Program.__graph.nodes.values():
             if predicate(node):
@@ -288,14 +314,22 @@ class Program:
         return None
 
     @staticmethod
-    def __get_node_from_label_or_id(tag: str) -> TubemapNode:
+    def __get_node_from_label_or_id(tag: str) -> TubemapNode | None:
         """Finds the first node in a graph matching against a label or ID."""
         return Program.__get_node(lambda node: node.label.strip().lower() == tag.lower() or node.id == tag)
 
     @staticmethod
-    def __get_node_tag(node: TubemapNode) -> str:
+    def __get_edge_from_label_or_id(node1: TubemapNode, node2: TubemapNode, tag: str) -> TubemapEdge | None:
+        """Finds the first edge between two nodes matching against a label or ID."""
+        for edge in node1.adjacency_dict[node2.id].values():
+            if edge.label.strip().lower() == tag.lower() or edge.id == tag:
+                return edge
+        return None
+
+    @staticmethod
+    def __get_tag(item: TubemapNode | TubemapEdge) -> str:
         """Gets the tag of a node."""
-        return (node.label if node.label != "" else node.id).strip()
+        return (item.label if item.label != "" else str(item.id)).strip()
 
 if __name__ == "__main__":
     Program.Main()
