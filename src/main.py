@@ -359,5 +359,36 @@ class Program:
         """Gets the tag of a node."""
         return (item.label if item.label != "" else str(item.id)).strip()
 
+    @staticmethod
+    def get_colour_string(foreground: str | None = None, background: str | None = None, effect: str | None = None) -> str:
+        """Gets a colour string for use in the console."""
+        #https://ozzmaker.com/add-colour-to-text-in-python/
+        PREFIX = "\033["
+        COLOURS = {
+            "default": 0,
+            "black": 30,
+            "red": 31,
+            "green": 32,
+            "yellow": 33,
+            "blue": 34,
+            "magenta": 35,
+            "cyan": 36,
+            "white": 37
+        }
+        TEXT_EFFECTS = {
+            "default": 0,
+            "bold": 1,
+            "underline": 2,
+            "italic": 3,
+            "inverse": 4,
+            "strikethrough": 9
+        }
+
+        foreground_id = COLOURS[foreground] if foreground is not None else COLOURS["default"]
+        background_id = COLOURS[background] + 10 if background is not None else COLOURS["default"] + 10
+        effect_id = TEXT_EFFECTS[effect] if effect is not None else TEXT_EFFECTS["default"]
+
+        return f"{PREFIX}{effect_id};{foreground_id};{background_id}m"
+
 if __name__ == "__main__":
     Program.Main()
