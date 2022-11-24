@@ -17,5 +17,5 @@ class JsonTests:
 
 if __name__ == "__main__":
     # JsonTests().run()
-    # AlgorithmTests.run()
+    AlgorithmTests.run()
     pass
