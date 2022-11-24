@@ -1,15 +1,11 @@
 from typing import Dict, List
 from sys import maxsize as INT_MAX
-from algorithms.algorithm import AAlgorithm, PathPart
+from algorithms.algorithm import AAlgorithm, AlgorithmNode, PathPart
 from core.graph import Graph
 from core.node import Node
 from core.node import Edge
 
-class DijkstraNode:
-    @property
-    def node(self) -> Node:
-        return self.__node
-
+class DijkstraNode(AlgorithmNode):
     #Public get, public (custom) set.
     @property
     def is_boxed(self) -> bool:
@@ -21,10 +17,7 @@ class DijkstraNode:
         self.__is_boxed = value
 
     def __init__(self, node: Node) -> None:
-        self.__node: Node = node
-        self.previous_node: "DijkstraNode" | None = None
-        self.previous_edge: Edge | None = None
-        self.path_weight: int = INT_MAX
+        super().__init__(node)
         self.__is_boxed: bool = False
 
 """
@@ -88,7 +81,7 @@ class DijkstrasAlgorithm(AAlgorithm):
 
             #As the node we are working with past this point is boxed, if it is the node we are looking for, we can return here.
             if lightest_node_id == end_node.id:
-                return DijkstrasAlgorithm._dijkstra_node_to_path_array(dijkstra_node)
+                return AlgorithmNode.to_path_array(dijkstra_node)
 
             #region Update the path weight of this nodes unboxed neighbours.
             for [neighbouring_node_id, edges] in dijkstra_node.node.adjacency_dict.items():
@@ -110,22 +103,3 @@ class DijkstrasAlgorithm(AAlgorithm):
 
         #If we do end somehow end up here, something has gone wrong.
         raise AssertionError(f"Failed to find a path from node '{start_node.id}' to node '{end_node.id}' on the specified graph.")
-
-    @staticmethod
-    def _dijkstra_node_to_path_array(dijkstra_node: DijkstraNode) -> List[PathPart]:
-        path_array: List[PathPart] = []
-
-        current_node = dijkstra_node
-        previous_edge: Edge | None = None
-        while current_node is not None:
-            path_array.append(PathPart(current_node.node, previous_edge))
-
-            previous_edge = current_node.previous_edge
-
-            if current_node.previous_node is None:
-                break
-
-            current_node = current_node.previous_node
-
-        path_array.reverse()
-        return path_array

@@ -2,7 +2,7 @@ from typing import Dict, List
 from sys import maxsize as INT_MAX
 from tubemap.core.tubemap_graph import TubemapGraph
 from tubemap.core.tubemap_node import TubemapNode
-from algorithms.algorithm import PathPart
+from algorithms.algorithm import AlgorithmNode, PathPart
 from algorithms.dijkstras_algorithm import DijkstrasAlgorithm, DijkstraNode
 
 class TubemapDijkstraNode(DijkstraNode):
@@ -12,7 +12,6 @@ class TubemapDijkstraNode(DijkstraNode):
 
     def __init__(self, node: TubemapNode) -> None:
         super().__init__(node)
-        self.__node: TubemapNode = node
 
 class TubemapDijkstrasAlgorithm(DijkstrasAlgorithm):
     @staticmethod
@@ -52,7 +51,7 @@ class TubemapDijkstrasAlgorithm(DijkstrasAlgorithm):
 
             #As the node we are working with past this point is boxed, if it is the node we are looking for, we can return here.
             if lightest_node_id == end_node.id:
-                return DijkstrasAlgorithm._dijkstra_node_to_path_array(dijkstra_node)
+                return AlgorithmNode.to_path_array(dijkstra_node)
 
             #region Update the path weight of this nodes unboxed neighbours.
             for [neighbouring_node_id, edges] in dijkstra_node.node.adjacency_dict.items():
