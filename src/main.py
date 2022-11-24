@@ -9,7 +9,7 @@ from tubemap.algorithms.tubemap_dijkstras_algorithm import TubemapDijkstrasAlgor
 class Program:
     INFO = {
         "name": "Tubemapper",
-        "version": "0.4",
+        "version": "0.4.1",
         "author": "Tristan Read (ReadieFur)"
     }
 
@@ -515,7 +515,9 @@ class Program:
 
             #Body
             for entry in entries:
-                tag = entry[0][:longest_label]
+                tag = entry[0]
+                if len(tag) > longest_label:
+                    tag = tag[:longest_label - 3].rstrip().rstrip(".") + "..."
                 tag = Program.build_coloured_string((tag.rjust(longest_label), 'green'))
 
                 #For the bar size, we need to convert the range of smallest_weight to largest_weight into a range of 0 to graph_width.
