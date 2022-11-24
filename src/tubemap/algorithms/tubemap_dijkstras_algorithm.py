@@ -8,7 +8,7 @@ from algorithms.dijkstras_algorithm import DijkstrasAlgorithm, DijkstraNode
 class TubemapDijkstraNode(DijkstraNode):
     @property
     def node(self) -> TubemapNode:
-        return self.__node
+        return super().node
 
     def __init__(self, node: TubemapNode) -> None:
         super().__init__(node)

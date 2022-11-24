@@ -1,30 +1,21 @@
 from typing import Dict, List
 from sys import maxsize as INT_MAX
-from algorithms.algorithm import AAlgorithm, AlgorithmNode, PathPart
-from core.graph import Graph
-from core.node import Node
+from tubemap.core.tubemap_graph import TubemapGraph
+from tubemap.core.tubemap_node import TubemapNode
+from algorithms.algorithm import AlgorithmNode, PathPart
+from algorithms.bellman_fords_algorithm_dp import BellmanFordsAlgorithmDP
 
-"""
-* I am using the following psuedocode to assist in my creation of this algorithm:
-* From: COMP1828 "Dynamic Programming 2.pptx" slide 20:
-# Input: A weighted connected graph G = (V, E) with nonnegative weights and its vertex s
-# Output: The length dist(s, v) of a shortest path from s to v and its penultimate vertex pv for every vertex v in V.
-# d(i, v): The distance of a shortest path from s to v given edge budget i.
-ALGORITHM Bellman-Ford-DynPrg(G, s)
-    Initalize(G, s): #initalize
-    for i < 1 to |V| - 1 do
-        for each vertex v do
-            d(i, v) <- d(i - 1, v) #case 1
-            for each incoming edge (u, v) do
-                d(i, v) <- mi{d(i, v), d(i - 1, u) + w(u, v)} #case 2
-    #... check for a negitive-weiht cycle
-    for each vertex v do
-        dist(s, v) <- d(|V| - 1, v)
-"""
-#The psuedocode above I found harder to understand and didn't have as much time as I would've liked to understand it so I am modifying from the C# (I understand C# better than Python, hence I'm using that example) source on GeeksForGeeks: https://www.geeksforgeeks.org/bellman-ford-algorithm-dp-23/
-class BellmanFordsAlgorithmDP(AAlgorithm):
+class TubemapBellmanFordNode(AlgorithmNode):
+    @property
+    def node(self) -> TubemapNode:
+        return super().node
+
+    def __init__(self, node: TubemapNode) -> None:
+        super().__init__(node)
+
+class TubemapBellmanFordsAlgorithmDP(BellmanFordsAlgorithmDP):
     @staticmethod
-    def find_shortest_path(graph: Graph, start_node: Node, end_node: Node) -> List[PathPart]:
+    def find_shortest_path(graph: TubemapGraph, start_node: TubemapNode, end_node: TubemapNode) -> List[PathPart]:
         bellman_ford_nodes: Dict[int, AlgorithmNode] = {}
 
         #Set all distances to MAX_INT and the start node to 0.
@@ -36,7 +27,7 @@ class BellmanFordsAlgorithmDP(AAlgorithm):
         #Relaxing an edge is when we check the currently processed nodes to see if there is a shorter path than the current one.
         for _ in range(len(graph.nodes) - 1):
             for [source, destination, edge] in graph.edge_list.values():
-                if bellman_ford_nodes[source.id].path_weight != INT_MAX and bellman_ford_nodes[source.id].path_weight + edge.weight < bellman_ford_nodes[destination.id].path_weight:
+                if not edge.closed and bellman_ford_nodes[source.id].path_weight != INT_MAX and bellman_ford_nodes[source.id].path_weight + edge.weight < bellman_ford_nodes[destination.id].path_weight:
                     bellman_ford_nodes[destination.id].path_weight = bellman_ford_nodes[source.id].path_weight + edge.weight
                     bellman_ford_nodes[destination.id].previous_node = bellman_ford_nodes[source.id]
                     bellman_ford_nodes[destination.id].previous_edge = edge

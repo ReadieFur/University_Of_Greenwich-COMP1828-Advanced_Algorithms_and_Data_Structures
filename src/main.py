@@ -3,20 +3,22 @@ import os
 from tubemap.core.tubemap_graph import TubemapGraph, SerializedTubemapGraph
 from tubemap.core.tubemap_node import TubemapNode
 from tubemap.core.tubemap_edge import TubemapEdge
-from algorithms.graph_searcher import GraphSearcher
+from algorithms.algorithm import AAlgorithm
 from algorithms.dijkstras_algorithm import DijkstrasAlgorithm
+from algorithms.bellman_fords_algorithm_dp import BellmanFordsAlgorithmDP
 from tubemap.algorithms.tubemap_graph_searcher import TubemapGraphSearcher
 from tubemap.algorithms.tubemap_dijkstras_algorithm import TubemapDijkstrasAlgorithm
-
+from tubemap.algorithms.tubemap_bellman_fords_algorithm_dp import TubemapBellmanFordsAlgorithmDP
 class Program:
     INFO = {
         "name": "Tubemapper",
-        "version": "0.5.0",
+        "version": "0.6.0",
         "author": "Tristan Read (ReadieFur)"
     }
 
     __ALGORITHMS = [
-        "dijkstra"
+        "dijkstra",
+        # "bellman-ford-dp"
     ]
 
     __graph: TubemapGraph = None
@@ -258,22 +260,21 @@ class Program:
             Program.print("Sets the algorithm to use.")
             Program.print("Usage:")
             Program.print(("algorithm", 'yellow'), "\n\tShows the current algorithm.")
+            Program.print(("algorithm list", 'yellow'), "\n\tLists the available algorithms.")
             Program.print(("algorithm", 'yellow'), (" [algorithm]", 'magenta'), "\n\tSets the algorithm.")
-            Program.print("Algorithms:")
-            for algorithm in Program.__ALGORITHMS:
-                Program.print((f"- {algorithm}", 'cyan'))
             return
 
         if len(args) < 1:
-            Program.print("The current algorithm is ", (f"'{Program.__ALGORITHMS[Program.__algorithm]}'", 'green'), ".")
-            return
-
-        if args[0].lower() not in Program.__ALGORITHMS:
+            Program.print("The current algorithm is", (f" '{Program.__ALGORITHMS[Program.__algorithm]}'", 'green'), ".")
+        elif args[0] == "list":
+            Program.print("Available algorithms:")
+            for algorithm in Program.__ALGORITHMS:
+                Program.print((f"- {algorithm}", 'cyan'))
+        elif args[0].lower() in Program.__ALGORITHMS:
+            Program.__algorithm = Program.__ALGORITHMS.index(args[0].lower())
+            Program.print("The algorithm is now", (f" '{Program.__ALGORITHMS[Program.__algorithm]}'", 'green'), ".")
+        else:
             Program.print((f"Invalid algorithm.", 'red'))
-            return
-
-        Program.__algorithm = args.index(args[0].lower())
-        Program.print("The algorithm is now ", (f"'{Program.__ALGORITHMS[Program.__algorithm]}'", 'green'), ".")
 
     @staticmethod
     def __command_go(args: List[str], show_help = False) -> None:
@@ -297,11 +298,17 @@ class Program:
             Program.print((f"No route is available between the start and end stations.", 'red'))
             return
 
-        optimal_path_part_array = []
-        tubemap_path_part_array = []
+        base_algorithm: AAlgorithm = None
+        tubemap_algorithm: AAlgorithm = None
         if Program.__algorithm == 0:
-            optimal_path_part_array = DijkstrasAlgorithm.find_shortest_path(Program.__graph, Program.__start_node, Program.__end_node)
-            tubemap_path_part_array = TubemapDijkstrasAlgorithm.find_shortest_path(Program.__graph, Program.__start_node, Program.__end_node)
+            base_algorithm = DijkstrasAlgorithm
+            tubemap_algorithm = TubemapDijkstrasAlgorithm
+        elif Program.__algorithm == 1:
+            base_algorithm = BellmanFordsAlgorithmDP
+            tubemap_algorithm = TubemapBellmanFordsAlgorithmDP
+
+        optimal_path_part_array = base_algorithm.find_shortest_path(Program.__graph, Program.__start_node, Program.__end_node)
+        tubemap_path_part_array = tubemap_algorithm.find_shortest_path(Program.__graph, Program.__start_node, Program.__end_node)
 
         optimal_path_weight = 0
         tubemap_path_weight = 0
