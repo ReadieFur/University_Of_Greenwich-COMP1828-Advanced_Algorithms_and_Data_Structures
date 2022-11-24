@@ -137,6 +137,7 @@ class Program:
         if show_help:
             Program.print("Shows or updates the properties of a line.")
             Program.print("Usage:")
+            Program.print(("line info", 'yellow'), (" [station1] [station2]", 'magenta'), "\n\tShows a histogram of the times it takes to travel between the two stations using all possible lines.")
             Program.print(("line info", 'yellow'), (" [station1] [station2] [line]", 'magenta'), "\n\tShows if a line is closed or not between the specified stations.")
             Program.print(("line open", 'yellow'), (" [station1] [station2] [line]", 'magenta'), "\n\tOpens a line.")
             Program.print(("line close", 'yellow'), (" [station1] [station2] [line]", 'magenta'), "\n\tCloses a line.")
@@ -152,38 +153,138 @@ class Program:
         if node1 is None:
             Program.print((f"Invalid first station.", 'red'))
             return
-        if node2 is None:
+        elif node2 is None:
             Program.print((f"Invalid second station.", 'red'))
             return
-
-        if node2.id not in node1.adjacency_dict:
+        elif node2.id not in node1.adjacency_dict:
             Program.print((f"The two stations are not connected.", 'red'))
             return
 
-        edge = Program.__get_edge_from_label_or_id(node1, node2, args[3])
-        if edge is None:
-            Program.print((f"The two stations do not have a connection on the specified line.", 'red'))
-            return
+        if args[0] == "info" and len(args) == 3:
+            Program.print("Histogram of times between ", (f"{Program.__get_tag(node1)}", 'green'), " and ", (f"{Program.__get_tag(node2)}", 'green'), ":")
 
-        node1_tag = Program.__get_tag(node1)
-        node2_tag = Program.__get_tag(node2)
-        edge_tag = Program.__get_tag(edge)
+            MAX_WIDTH = 80
+            MAX_TAG_LENGTH = 20
+            MIN_PADDING = 2
 
-        prefix = Program.build_coloured_string("The Line between ", (f"'{node1_tag}'", 'green'), " and ", (f"'{node2_tag}'", 'green'), " via ", (f"'{edge_tag}'", 'cyan'), " is")
-        if args[0] == "info":
-            # Program.print(f"{prefix} ", ("closed" if edge.closed else "open", 'cyan'), ".")
-            info_str = f"{prefix} "
-            if edge.closed:
-                info_str += Program.build_coloured_string(("closed", 'red'))
+            """Histogram layout:
+            Top row is the time labels fron smallest_weight to largest_weight.
+            The graph is offset to the right by the length of longest_tag + " | ".
+            The rest of the rows have their edge right aligned to the | and their weight bar following it.
+            The second is the edge with the longest weight.
+            The last is the edge with the shortest weight.
+            ---
+                Line   |                Time
+                       | smallest_weight ... largest_weight
+                   tag | ==================================
+                   ... | ================...
+            len(edges) | ======...
+            """
+
+            #Sort the edges by their tag and then by their weight in descending order.
+            edges = sorted(sorted(node1.adjacency_dict[node2.id].values(), key=lambda x: Program.__get_tag(x)), key=lambda x: x.weight, reverse=True)
+            longest_tag = max(len(" Line"), min(MAX_TAG_LENGTH, len(Program.__get_tag(max(edges, key=lambda x: len(Program.__get_tag(x)))))))
+            largest_weight = max(edges, key=lambda x: x.weight).weight
+            # largest_weight = 15
+            smallest_weight = min(0, min(edges, key=lambda x: x.weight).weight)
+            remaining_width = MAX_WIDTH - (longest_tag + 3)
+
+            #region Build the histogram.
+            #region Header
+            #Offset the graph by the length of longest_tag and then add " | ".
+            #For this specific use case, we won't expect the weights to be any larget than 100.
+            #Use an increment pattern where the first digit is always 1, 2, 5, in increments of 10 each iteration.
+            #This isn't perfect and will break on small MAX_WIDTHs, but it's good enough for this use case.
+            fine_step = (largest_weight + abs(smallest_weight)) / remaining_width
+            #Now find the closest step from the pattern above that is larger than the fine step.
+            step = 0
+            i = 0 #The iteration of 1, 2 or 5 we are on.
+            j = 0 #The multiplier modifier.
+            space_between_steps = 0
+            steps = 0
+            largest_digit_count = max(len(str(largest_weight)), len(str(smallest_weight)))
+            #If the space_between_steps is less than MIN_PADDING then we need to increase the step size.
+            while step < fine_step or space_between_steps < MIN_PADDING:
+                multiplier = 10 ** j
+                if i == 0:
+                    step = 1
+                elif i == 1:
+                    step = 2
+                elif i == 2:
+                    step = 5
+                    j += 1
+                step *= multiplier
+                i = (i + 1) % 3
+                #Now we have the step size, calculate how many steps we need to fit in the MAX_WIDTH between smallest_weight and largest_weight.
+                #(This is required to be cauculated within this loop becuase we need this value for knowing if the step space is valid).
+                steps = int((largest_weight + abs(smallest_weight)) / step)
+                #If the step size multiplied by the number of steps is less than largest_weight then we need to add another step.
+                if step * steps < largest_weight:
+                    steps += 1
+                #We need to take into account how many digits the largest step is when calculating the space between steps.
+                space_between_steps = int(remaining_width / steps) - largest_digit_count
+            #Now we can build the header...
+            #We must manually add the first.
+            header = f"{smallest_weight}"
+            for i in range(steps):
+                next_step = str(smallest_weight + (i + 1) * step)
+                #We need to make sure that the header parts keep the same offset regardless of the number of digits in the step.
+                #This is done by adding spaces after the label to keep the offset.
+                header += f"{next_step:>{space_between_steps + (len(next_step) - largest_digit_count)}}"
+
+            #We need to know where the graph ends so we know where to set the max bar width to and to properly center aligh the sub-header.
+            #We can "cheat" in getting this value by taking the header and trimming the right side.
+            graph_width = len(header.rstrip())
+
+            #Add the sub-headers.
+            #Sub-headers should be center aligned with their corresponding column.
+            line_subheader = "Line"
+            line_subheader = line_subheader.rjust((longest_tag // 2) + (len(line_subheader) // 2) + 1).ljust(longest_tag)
+            time_subheader = "Time (minutes)"
+            time_subheader = time_subheader.rjust((graph_width // 2) + (len(time_subheader) // 2))
+            Program.print((line_subheader, 'magenta'), " | ", (time_subheader, 'magenta'))
+
+            Program.print(" " * longest_tag + " | ", (header, 'magenta'))
+            #endregion
+
+            #Body
+            for edge in edges:
+                tag = Program.__get_tag(edge)[:longest_tag]
+                tag = Program.build_coloured_string((tag.rjust(longest_tag), 'green'))
+
+                #For the bar size, we need to convert the range of smallest_weight to largest_weight into a range of 0 to graph_width.
+                bar = Program.build_coloured_string(("=" * (((edge.weight - smallest_weight) * graph_width) // (largest_weight - smallest_weight)), 'cyan'))
+
+                Program.print(f"{tag} | {bar}")
+            #endregion
+            #endregion
+        elif len(args) == 4:
+            edge = Program.__get_edge_from_label_or_id(node1, node2, args[3])
+            if edge is None:
+                Program.print((f"The two stations do not have a connection on the specified line.", 'red'))
+                return
+
+            node1_tag = Program.__get_tag(node1)
+            node2_tag = Program.__get_tag(node2)
+            edge_tag = Program.__get_tag(edge)
+
+            prefix = Program.build_coloured_string("The Line between ", (f"'{node1_tag}'", 'green'), " and ", (f"'{node2_tag}'", 'green'), " via ", (f"'{edge_tag}'", 'cyan'), " is")
+            if args[0] == "info":
+                # Program.print(f"{prefix} ", ("closed" if edge.closed else "open", 'cyan'), ".")
+                info_str = f"{prefix} "
+                if edge.closed:
+                    info_str += Program.build_coloured_string(("closed", 'red'))
+                else:
+                    info_str += Program.build_coloured_string(("open", 'green'), " and will take ", (f"{edge.weight}", 'cyan'), " minutes to travel between")
+                Program.print(info_str, ".")
+            elif args[0] == "open":
+                edge.closed = False
+                Program.print(f"{prefix} now ", ("open", 'green'), ".")
+            elif args[0] == "close":
+                edge.closed = True
+                Program.print(f"{prefix} now ", ("closed", 'red'), ".")
             else:
-                info_str += Program.build_coloured_string(("open", 'green'), " and will take ", (f"{edge.weight}", 'cyan'), " minutes to travel between")
-            Program.print(info_str, ".")
-        elif args[0] == "open":
-            edge.closed = False
-            Program.print(f"{prefix} now ", ("open", 'green'), ".")
-        elif args[0] == "close":
-            edge.closed = True
-            Program.print(f"{prefix} now ", ("closed", 'red'), ".")
+                Program.print((f"Invalid syntax.", 'red'))
         else:
             Program.print((f"Invalid syntax.", 'red'))
 
