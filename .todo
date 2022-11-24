@@ -1,7 +1,8 @@
 ToDo:
-    Update task 1B to show a histogram for the entire journey.
-    Complete task 2B by calculating the shortest path, ignoring closed nodes and then calculate the time added to the journey due to the closed lines.
-    Update task 2A to deny closure of a line if it would cause a station to be unreachable.
-    Modify my web graph builder to support this coursework task, line closures etc.
+    ☐ Complete task 2B by calculating the shortest path, ignoring closed nodes and then calculate the time added to the journey due to the closed lines.
+    ☐ Update task 2A to deny closure of a line if it would cause a station to be unreachable.
+    ☐ Modify my web graph builder to support this coursework task, line closures etc.
+
 Done:
+    ☐ Update task 1B to show a histogram for the entire journey.
     ☐ Show the line that is being used.

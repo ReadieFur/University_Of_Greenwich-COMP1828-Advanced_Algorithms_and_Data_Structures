@@ -9,7 +9,7 @@ from tubemap.algorithms.tubemap_dijkstras_algorithm import TubemapDijkstrasAlgor
 class Program:
     INFO = {
         "name": "Tubemapper",
-        "version": "0.3",
+        "version": "0.4",
         "author": "Tristan Read (ReadieFur)"
     }
 
@@ -162,102 +162,10 @@ class Program:
 
         if args[0] == "info" and len(args) == 3:
             Program.print("Histogram of times between ", (f"{Program.__get_tag(node1)}", 'green'), " and ", (f"{Program.__get_tag(node2)}", 'green'), ":")
-
-            MAX_WIDTH = 80
-            MAX_TAG_LENGTH = 20
-            MIN_PADDING = 2
-
-            """Histogram layout:
-            Top row is the time labels fron smallest_weight to largest_weight.
-            The graph is offset to the right by the length of longest_tag + " | ".
-            The rest of the rows have their edge right aligned to the | and their weight bar following it.
-            The second is the edge with the longest weight.
-            The last is the edge with the shortest weight.
-            ---
-                Line   |                Time
-                       | smallest_weight ... largest_weight
-                   tag | ==================================
-                   ... | ================...
-            len(edges) | ======...
-            """
-
-            #Sort the edges by their tag and then by their weight in descending order.
-            edges = sorted(sorted(node1.adjacency_dict[node2.id].values(), key=lambda x: Program.__get_tag(x)), key=lambda x: x.weight, reverse=True)
-            longest_tag = max(len(" Line"), min(MAX_TAG_LENGTH, len(Program.__get_tag(max(edges, key=lambda x: len(Program.__get_tag(x)))))))
-            largest_weight = max(edges, key=lambda x: x.weight).weight
-            # largest_weight = 15
-            smallest_weight = min(0, min(edges, key=lambda x: x.weight).weight)
-            remaining_width = MAX_WIDTH - (longest_tag + 3)
-
-            #region Build the histogram.
-            #region Header
-            #Offset the graph by the length of longest_tag and then add " | ".
-            #For this specific use case, we won't expect the weights to be any larget than 100.
-            #Use an increment pattern where the first digit is always 1, 2, 5, in increments of 10 each iteration.
-            #This isn't perfect and will break on small MAX_WIDTHs, but it's good enough for this use case.
-            fine_step = (largest_weight + abs(smallest_weight)) / remaining_width
-            #Now find the closest step from the pattern above that is larger than the fine step.
-            step = 0
-            i = 0 #The iteration of 1, 2 or 5 we are on.
-            j = 0 #The multiplier modifier.
-            space_between_steps = 0
-            steps = 0
-            largest_digit_count = max(len(str(largest_weight)), len(str(smallest_weight)))
-            #If the space_between_steps is less than MIN_PADDING then we need to increase the step size.
-            while step < fine_step or space_between_steps < MIN_PADDING:
-                multiplier = 10 ** j
-                if i == 0:
-                    step = 1
-                elif i == 1:
-                    step = 2
-                elif i == 2:
-                    step = 5
-                    j += 1
-                step *= multiplier
-                i = (i + 1) % 3
-                #Now we have the step size, calculate how many steps we need to fit in the MAX_WIDTH between smallest_weight and largest_weight.
-                #(This is required to be cauculated within this loop becuase we need this value for knowing if the step space is valid).
-                steps = int((largest_weight + abs(smallest_weight)) / step)
-                #If the step size multiplied by the number of steps is less than largest_weight then we need to add another step.
-                if step * steps < largest_weight:
-                    steps += 1
-                #We need to take into account how many digits the largest step is when calculating the space between steps.
-                space_between_steps = int(remaining_width / steps) - largest_digit_count
-            #Now we can build the header...
-            #We must manually add the first.
-            header = f"{smallest_weight}"
-            for i in range(steps):
-                next_step = str(smallest_weight + (i + 1) * step)
-                #We need to make sure that the header parts keep the same offset regardless of the number of digits in the step.
-                #This is done by adding spaces after the label to keep the offset.
-                header += f"{next_step:>{space_between_steps + (len(next_step) - largest_digit_count)}}"
-
-            #We need to know where the graph ends so we know where to set the max bar width to and to properly center aligh the sub-header.
-            #We can "cheat" in getting this value by taking the header and trimming the right side.
-            graph_width = len(header.rstrip())
-
-            #Add the sub-headers.
-            #Sub-headers should be center aligned with their corresponding column.
-            line_subheader = "Line"
-            line_subheader = line_subheader.rjust((longest_tag // 2) + (len(line_subheader) // 2) + 1).ljust(longest_tag)
-            time_subheader = "Time (minutes)"
-            time_subheader = time_subheader.rjust((graph_width // 2) + (len(time_subheader) // 2))
-            Program.print((line_subheader, 'magenta'), " | ", (time_subheader, 'magenta'))
-
-            Program.print(" " * longest_tag + " | ", (header, 'magenta'))
-            #endregion
-
-            #Body
-            for edge in edges:
-                tag = Program.__get_tag(edge)[:longest_tag]
-                tag = Program.build_coloured_string((tag.rjust(longest_tag), 'green'))
-
-                #For the bar size, we need to convert the range of smallest_weight to largest_weight into a range of 0 to graph_width.
-                bar = Program.build_coloured_string(("=" * (((edge.weight - smallest_weight) * graph_width) // (largest_weight - smallest_weight)), 'cyan'))
-
-                Program.print(f"{tag} | {bar}")
-            #endregion
-            #endregion
+            histogram_data = [(Program.__get_tag(edge), edge.weight) for edge in node1.adjacency_dict[node2.id].values()]
+            #Sort the entries by their tag and then by their weight in descending order.
+            histogram_data = sorted(sorted(histogram_data, key=lambda x: x[0]), key=lambda x: x[1], reverse=True)
+            Program.__display_histogram(histogram_data, "Line", "Time (minutes)")
         elif len(args) == 4:
             edge = Program.__get_edge_from_label_or_id(node1, node2, args[3])
             if edge is None:
@@ -270,7 +178,6 @@ class Program:
 
             prefix = Program.build_coloured_string("The Line between ", (f"'{node1_tag}'", 'green'), " and ", (f"'{node2_tag}'", 'green'), " via ", (f"'{edge_tag}'", 'cyan'), " is")
             if args[0] == "info":
-                # Program.print(f"{prefix} ", ("closed" if edge.closed else "open", 'cyan'), ".")
                 info_str = f"{prefix} "
                 if edge.closed:
                     info_str += Program.build_coloured_string(("closed", 'red'))
@@ -424,6 +331,15 @@ class Program:
 
         Program.print("The shortest route from ", (f"'{Program.__get_tag(Program.__start_node)}'", 'green'), " to ", (f"'{Program.__get_tag(Program.__end_node)}'", 'green'), " has a duration of ", (weight, 'green'), f" minutes.\n{path_string}")
 
+        #Histogram
+        Program.print("Histogram of times between each previous station:")
+        histogram_data: List[Tuple[str, int]] = []
+        for i in range(len(path_part_array)):
+            current_station = Program.__get_tag(path_part_array[i].node)
+            previous_edge = 0 if path_part_array[i - 1].edge is None else path_part_array[i - 1].edge.weight
+            histogram_data.append((current_station, previous_edge))
+        Program.__display_histogram(histogram_data, "Station", "Time between previous station (minutes)")
+
     @staticmethod
     def __command_clear(args: List[str], show_help = False) -> None:
         """Clears the console."""
@@ -515,6 +431,99 @@ class Program:
     def print(*items: Tuple[Any, str] | str, end: str = "\n") -> None:
         """Prints a string with colour."""
         print(Program.build_coloured_string(*items), end = end)
+
+    @staticmethod
+    def __display_histogram(entries: List[Tuple[str, int]], header1: str, header2: str) -> None:
+            MAX_WIDTH = 80
+            MAX_TAG_LENGTH = 20
+            MIN_PADDING = 2
+
+            """Histogram layout:
+            Top row is the time labels fron smallest_weight to largest_weight.
+            The graph is offset to the right by the length of longest_tag + " | ".
+            The rest of the rows have their edge right aligned to the | and their weight bar following it.
+            The second is the edge with the longest weight.
+            The last is the edge with the shortest weight.
+            ---
+                Line   |                Time
+                       | smallest_weight ... largest_weight
+                   tag | ==================================
+                   ... | ================...
+            len(edges) | ======...
+            """
+
+            longest_label = max(len(header1) + 1, min(MAX_TAG_LENGTH, len(max(entries, key=lambda x: len(x[0]))[0])))
+            largest_value = max(entries, key=lambda x: x[1])[1]
+            smallest_value = min(0, min(entries, key=lambda x: x[1])[1])
+            remaining_width = MAX_WIDTH - (longest_label + 3)
+
+            #region Build the histogram.
+            #region Header
+            #Offset the graph by the length of longest_tag and then add " | ".
+            #For this specific use case, we won't expect the weights to be any larget than 100.
+            #Use an increment pattern where the first digit is always 1, 2, 5, in increments of 10 each iteration.
+            #This isn't perfect and will break on small MAX_WIDTHs, but it's good enough for this use case.
+            fine_step = (largest_value + abs(smallest_value)) / remaining_width
+            #Now find the closest step from the pattern above that is larger than the fine step.
+            step = 0
+            i = 0 #The iteration of 1, 2 or 5 we are on.
+            j = 0 #The multiplier modifier.
+            space_between_steps = 0
+            steps = 0
+            largest_digit_count = max(len(str(largest_value)), len(str(smallest_value)))
+            #If the space_between_steps is less than MIN_PADDING then we need to increase the step size.
+            while step < fine_step or space_between_steps < MIN_PADDING:
+                multiplier = 10 ** j
+                if i == 0:
+                    step = 1
+                elif i == 1:
+                    step = 2
+                elif i == 2:
+                    step = 5
+                    j += 1
+                step *= multiplier
+                i = (i + 1) % 3
+                #Now we have the step size, calculate how many steps we need to fit in the MAX_WIDTH between smallest_weight and largest_weight.
+                #(This is required to be cauculated within this loop becuase we need this value for knowing if the step space is valid).
+                steps = int((largest_value + abs(smallest_value)) / step)
+                #If the step size multiplied by the number of steps is less than largest_weight then we need to add another step.
+                if step * steps < largest_value:
+                    steps += 1
+                #We need to take into account how many digits the largest step is when calculating the space between steps.
+                space_between_steps = int(remaining_width / steps) - largest_digit_count
+            #Now we can build the header...
+            #We must manually add the first.
+            subheader = f"{smallest_value}"
+            for i in range(steps):
+                next_step = str(smallest_value + (i + 1) * step)
+                #We need to make sure that the header parts keep the same offset regardless of the number of digits in the step.
+                #This is done by adding spaces after the label to keep the offset.
+                subheader += f"{next_step:>{space_between_steps + (len(next_step) - largest_digit_count)}}"
+
+            #We need to know where the graph ends so we know where to set the max bar width to and to properly center aligh the sub-header.
+            #We can "cheat" (as opposed to calculating it mathmatically) in getting this value by taking the header and trimming the right side.
+            graph_width = len(subheader.rstrip())
+
+            #Add the headers.
+            #Sub-headers should be center aligned with their corresponding column.
+            header1 = header1.rjust((longest_label // 2) + (len(header1) // 2) + 1).ljust(longest_label)
+            header2 = header2.rjust((graph_width // 2) + (len(header2) // 2))
+            Program.print((header1, 'magenta'), " | ", (header2, 'magenta'))
+
+            Program.print(" " * longest_label + " | ", (subheader, 'magenta'))
+            #endregion
+
+            #Body
+            for entry in entries:
+                tag = entry[0][:longest_label]
+                tag = Program.build_coloured_string((tag.rjust(longest_label), 'green'))
+
+                #For the bar size, we need to convert the range of smallest_weight to largest_weight into a range of 0 to graph_width.
+                bar = Program.build_coloured_string(("=" * (((entry[1] - smallest_value) * graph_width) // (largest_value - smallest_value)), 'cyan'))
+
+                Program.print(f"{tag} | {bar}")
+            #endregion
+            #endregion
 
 if __name__ == "__main__":
     Program.Main()
