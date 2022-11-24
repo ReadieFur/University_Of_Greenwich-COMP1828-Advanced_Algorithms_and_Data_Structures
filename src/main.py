@@ -3,13 +3,15 @@ import os
 from tubemap.core.tubemap_graph import TubemapGraph, SerializedTubemapGraph
 from tubemap.core.tubemap_node import TubemapNode
 from tubemap.core.tubemap_edge import TubemapEdge
+from algorithms.graph_searcher import GraphSearcher
+from algorithms.dijkstras_algorithm import DijkstrasAlgorithm
 from tubemap.algorithms.tubemap_graph_searcher import TubemapGraphSearcher
 from tubemap.algorithms.tubemap_dijkstras_algorithm import TubemapDijkstrasAlgorithm
 
 class Program:
     INFO = {
         "name": "Tubemapper",
-        "version": "0.4.1",
+        "version": "0.5.0",
         "author": "Tristan Read (ReadieFur)"
     }
 
@@ -176,7 +178,7 @@ class Program:
             node2_tag = Program.__get_tag(node2)
             edge_tag = Program.__get_tag(edge)
 
-            prefix = Program.build_coloured_string("The Line between ", (f"'{node1_tag}'", 'green'), " and ", (f"'{node2_tag}'", 'green'), " via ", (f"'{edge_tag}'", 'cyan'), " is")
+            prefix = Program.build_coloured_string("The Line between", (f" '{node1_tag}'", 'green'), " and", (f" '{node2_tag}'", 'green'), " via", (f" '{edge_tag}'", 'cyan'), " is")
             if args[0] == "info":
                 info_str = f"{prefix} "
                 if edge.closed:
@@ -189,7 +191,11 @@ class Program:
                 Program.print(f"{prefix} now ", ("open", 'green'), ".")
             elif args[0] == "close":
                 edge.closed = True
-                Program.print(f"{prefix} now ", ("closed", 'red'), ".")
+                if not TubemapGraphSearcher.is_path_available(Program.__graph, node1, node2):
+                    edge.closed = False
+                    Program.print(("The Line between", 'red'), (f" '{node1_tag}'", 'green'), (" and", 'red'), (f" '{node2_tag}'", 'green'), (" via", 'red'), (f" '{edge_tag}'", 'cyan'), (" cannot be closed as it would cause one of the stations to be unreachable.", 'red'))
+                else:
+                    Program.print(f"{prefix} now ", ("closed", 'red'), ".")
             else:
                 Program.print((f"Invalid syntax.", 'red'))
         else:
@@ -287,56 +293,71 @@ class Program:
             Program.print((f"The start and end stations are the same.", 'red'))
             return
 
-        # if not GraphSearcher.is_path_available(Program.__start_node, Program.__end_node, True):
         if not TubemapGraphSearcher.is_path_available(Program.__graph, Program.__start_node, Program.__end_node):
             Program.print((f"No route is available between the start and end stations.", 'red'))
             return
 
-        path_part_array = []
+        optimal_path_part_array = []
+        tubemap_path_part_array = []
         if Program.__algorithm == 0:
-            path_part_array = TubemapDijkstrasAlgorithm.find_shortest_path(Program.__graph, Program.__start_node, Program.__end_node)
+            optimal_path_part_array = DijkstrasAlgorithm.find_shortest_path(Program.__graph, Program.__start_node, Program.__end_node)
+            tubemap_path_part_array = TubemapDijkstrasAlgorithm.find_shortest_path(Program.__graph, Program.__start_node, Program.__end_node)
 
-        weight = 0
+        optimal_path_weight = 0
+        tubemap_path_weight = 0
         path_string = ""
         current_line = ""
         stops_between_lines = 0
 
         #region Build the path string
         #region First node
-        path_string = Program.build_coloured_string("Start at ", (f"'{Program.__get_tag(path_part_array[0].node)}'", 'cyan'), " on the ", (f"'{Program.__get_tag(path_part_array[0].edge)}'", 'cyan'), " line.\n")
-        current_line = Program.__get_tag(path_part_array[0].edge)
+        path_string = Program.build_coloured_string("Start at ", (f"'{Program.__get_tag(tubemap_path_part_array[0].node)}'", 'green'), " on the ", (f"'{Program.__get_tag(tubemap_path_part_array[0].edge)}'", 'cyan'), " line.\n")
+        current_line = Program.__get_tag(tubemap_path_part_array[0].edge)
         stops_between_lines += 1
         #endregion
 
         #region Middle nodes
-        for i in range(1, len(path_part_array) - 1):
-            current_part = path_part_array[i]
+        for i in range(1, len(tubemap_path_part_array) - 1):
+            current_part = tubemap_path_part_array[i]
 
             if current_part.edge is not None:
-                weight += current_part.edge.weight
+                tubemap_path_weight += current_part.edge.weight
 
                 edge_tag = Program.__get_tag(current_part.edge)
                 if current_line != edge_tag:
-                    path_string += Program.build_coloured_string(f"Ride ", (f"{stops_between_lines}", 'cyan'), f" {'stop' if stops_between_lines == 1 else 'stops'} to ", (f"'{Program.__get_tag(current_part.node)}'", 'cyan'), ".\n")
+                    path_string += Program.build_coloured_string(f"Ride ", (f"{stops_between_lines}", 'cyan'), f" {'stop' if stops_between_lines == 1 else 'stops'} to ", (f"'{Program.__get_tag(current_part.node)}'", 'green'), ".\n")
                     path_string += Program.build_coloured_string("Change to the ", (f"'{edge_tag}'", 'cyan'), " line.\n")
                     current_line = edge_tag
                     stops_between_lines = 0
 
                 stops_between_lines += 1
+
+        for i in range(1, len(optimal_path_part_array) - 1):
+            current_part = optimal_path_part_array[i]
+            if current_part.edge is not None:
+                optimal_path_weight += current_part.edge.weight
         #endregion
 
         #region Last node
-        path_string += Program.build_coloured_string(f"Ride ", (f"{stops_between_lines}", 'cyan'), f" {'stop' if stops_between_lines == 1 else 'stops'} to ", (f"'{Program.__get_tag(path_part_array[len(path_part_array) - 1].node)}'", 'cyan'), " where you will arrive at your destination.")
+        path_string += Program.build_coloured_string(f"Ride ", (f"{stops_between_lines}", 'cyan'), f" {'stop' if stops_between_lines == 1 else 'stops'} to ", (f"'{Program.__get_tag(tubemap_path_part_array[len(tubemap_path_part_array) - 1].node)}'", 'green'), " where you will arrive at your destination.")
         #endregion
 
-        Program.print("The shortest route from ", (f"'{Program.__get_tag(Program.__start_node)}'", 'green'), " to ", (f"'{Program.__get_tag(Program.__end_node)}'", 'green'), " has a duration of ", (weight, 'green'), f" minutes.\n{path_string}")
+        #Print the summary.
+        Program.print("The route from ", (f"'{Program.__get_tag(Program.__start_node)}'", 'green'), " to ", (f"'{Program.__get_tag(Program.__end_node)}'", 'green'), " has a duration of ", (f"{tubemap_path_weight} minutes", 'cyan'), f".")
 
-        #Histogram
+        #If there were line closures, print a message saying that the optimal route may not be available.
+        if tubemap_path_weight != optimal_path_weight:
+            Program.print((f"Due to some line closures, the journey will take", 'red'), (f" {tubemap_path_weight - optimal_path_weight} minutes", 'cyan'), (f" longer than the most optimal route", 'red'), (f" ({optimal_path_weight} minutes)", 'green'), (f".", 'red'))
+
+        #Print the route.
+        Program.print(path_string)
+
+        #Display a histogram showing the time taken between stations.
         Program.print("Histogram of times between each previous station:")
         histogram_data: List[Tuple[str, int]] = []
-        for i in range(len(path_part_array)):
-            current_station = Program.__get_tag(path_part_array[i].node)
-            previous_edge = 0 if path_part_array[i - 1].edge is None else path_part_array[i - 1].edge.weight
+        for i in range(len(tubemap_path_part_array)):
+            current_station = Program.__get_tag(tubemap_path_part_array[i].node)
+            previous_edge = 0 if tubemap_path_part_array[i - 1].edge is None else tubemap_path_part_array[i - 1].edge.weight
             histogram_data.append((current_station, previous_edge))
         Program.__display_histogram(histogram_data, "Station", "Time between previous station (minutes)")
 
