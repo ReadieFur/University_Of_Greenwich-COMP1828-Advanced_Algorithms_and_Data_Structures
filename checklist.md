@@ -8,4 +8,8 @@
   - [x] A
     - [x] 1
     - [x] 2
-- [?] Task 3
+- [x] Task 3
+
+- Bonus:
+  - [] Task 3:
+    - Modify my web graph builder to support this coursework task, line closures etc.
