@@ -14,6 +14,7 @@
         "dijkstras",
         "multigraphs",
         "pathfinding",
+        "Tesseract",
         "tubemap",
         "Tubemapper"
     ]
