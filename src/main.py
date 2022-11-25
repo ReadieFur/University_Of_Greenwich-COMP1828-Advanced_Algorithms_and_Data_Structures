@@ -14,7 +14,7 @@ from tubemap.algorithms.tubemap_bellman_fords_algorithm_dp import TubemapBellman
 class Program:
     INFO = {
         "name": "Tubemapper",
-        "version": "0.6.4",
+        "version": "0.6.5",
         "author": "Tristan Read (ReadieFur)"
     }
 
@@ -136,7 +136,7 @@ class Program:
 
                 neighbor_string += f" (via"
                 for edge in edges.values():
-                    neighbor_string += Program.build_coloured_string((f" {Program.__get_tag(edge)}", 'cyan'), ",")
+                    neighbor_string += Program.build_coloured_string((f" {Program.__get_tag(edge)}", 'red' if edge.closed else 'cyan'), ",")
                 neighbor_string = f"{neighbor_string[:-1]})"
 
                 line_buffer.append(neighbor_string)
