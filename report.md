@@ -31,9 +31,9 @@
 | --- | --- |
 | 23rd October | Started experementing with data structures. |
 | 30th October | Started building Dijkstra's algorithm. |
-| 6th November | Completed building TS web-app ([source (closed as of submission)](https://github.com/ReadieFur/GraphBuilder), [demo](https://readiefur.github.io/GraphBuilder/)). |
+| 6th November | Completed building TS core web-app ([source, private as of submission](https://github.com/ReadieFur/GraphBuilder), [demo](https://readiefur.github.io/GraphBuilder/)). |
 | 13th November | Converted TS web-app core to a Python CLI program and added task 2 specific properties. |
-| 20th November | Added Bellman Ford's algorithm and a dynamic programming variant. Also completed task 3 (conversion of TS web-app UI to Python). |
+| 20th November | **1.** Completed task 1B to display a histogram timeline. **2.** Completed task 2A to allow line closures. **3.** Added Bellman Ford's dynamic programming algorithm. |
 
 | Name | Allocation of marks agreed by team (0 - 100%) |
 | --- | --- |
