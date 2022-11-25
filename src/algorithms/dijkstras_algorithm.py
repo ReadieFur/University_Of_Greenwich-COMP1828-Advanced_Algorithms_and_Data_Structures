@@ -3,7 +3,6 @@ from sys import maxsize as INT_MAX
 from algorithms.algorithm import AAlgorithm, AlgorithmNode, PathPart
 from core.graph import Graph
 from core.node import Node
-from core.node import Edge
 
 class DijkstraNode(AlgorithmNode):
     #Public get, public (custom) set.
