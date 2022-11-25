@@ -27,7 +27,7 @@ class _TestHelpers:
         Program.print((f"Expected result: {str(expected_result)}", 'yellow'), end=", ")
         Program.print((f"Actual result: {str(shortest_path)}", 'magenta'), end=", ")
         Program.print(("Test passed: ", 'cyan'), (str(test_passed), 'green' if test_passed else 'red'), end=", ")
-        Program.print((f"Duration: {duration * 1000}ms", 'blue'))
+        Program.print((f"Duration: {duration * 1000}ms", 'black'))
 
     @staticmethod
     def algorithm_test1(algorithm: AAlgorithm) -> None:
@@ -53,7 +53,7 @@ class _TestHelpers:
             d.id: "D"
         }
 
-        """
+        visual_graph = """
         *     B-----|
         *    / \    |
         *  (1) (2) (1)
@@ -64,6 +64,7 @@ class _TestHelpers:
         *    \ /
         *     C
         """
+        Program.print((str.join("\n", [line.lstrip() for line in visual_graph.splitlines()]), 'green'))
 
         #Expected shortest path from A to D is A (1)> B (1)> D.
         _TestHelpers.evaluate_algorithm(graph, a, d, algorithm, LABELS, "A (1)> B (1)> D")
@@ -108,7 +109,7 @@ class _TestHelpers:
             g.id: "G"
         }
 
-        """
+        visual_graph = """
         *     B -----(4)----- F
         *    / \            / |
         *  (4)  -(1)-   -(2)  |
@@ -119,6 +120,7 @@ class _TestHelpers:
         *    \        |      \|
         *     C -(5)- E -(2)- G
         """
+        Program.print((str.join("\n", [line.lstrip() for line in visual_graph.splitlines()]), 'green'))
 
         #Expected shortest path from A to G is A (4)> B (1)> D (2)> E (2)> G.
         _TestHelpers.evaluate_algorithm(graph, a, g, algorithm, LABELS, "A (4)> B (1)> D (2)> E (2)> G")
@@ -145,6 +147,8 @@ class _GraphSearcherTests:
         graph.add_edge(node1, node3, 1)
         graph.add_edge(node2, node4, 1)
 
+        #TODO: Create a visual graph for this test.
+
         expected_result = True
         bfs_result = GraphSearcher.is_graph_connected(graph, True)
         bsf_passed = expected_result == bfs_result
@@ -160,7 +164,7 @@ class _GraphSearcherTests:
 
     @staticmethod
     def _test2() -> None:
-        print(_GraphSearcherTests._test1.__name__)
+        print(_GraphSearcherTests._test2.__name__)
 
         graph = Graph()
 
