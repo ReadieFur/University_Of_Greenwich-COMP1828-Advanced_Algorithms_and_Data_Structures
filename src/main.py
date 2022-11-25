@@ -14,7 +14,7 @@ from tubemap.algorithms.tubemap_bellman_fords_algorithm_dp import TubemapBellman
 class Program:
     INFO = {
         "name": "Tubemapper",
-        "version": "0.6.3",
+        "version": "0.6.4",
         "author": "Tristan Read (ReadieFur)"
     }
 
