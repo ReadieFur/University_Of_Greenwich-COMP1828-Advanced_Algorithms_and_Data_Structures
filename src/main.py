@@ -1,5 +1,6 @@
 from typing import Any, List, Callable, Tuple
 import os
+from time import time
 from tubemap.core.tubemap_graph import TubemapGraph, SerializedTubemapGraph
 from tubemap.core.tubemap_node import TubemapNode
 from tubemap.core.tubemap_edge import TubemapEdge
@@ -9,16 +10,17 @@ from algorithms.bellman_fords_algorithm_dp import BellmanFordsAlgorithmDP
 from tubemap.algorithms.tubemap_graph_searcher import TubemapGraphSearcher
 from tubemap.algorithms.tubemap_dijkstras_algorithm import TubemapDijkstrasAlgorithm
 from tubemap.algorithms.tubemap_bellman_fords_algorithm_dp import TubemapBellmanFordsAlgorithmDP
+
 class Program:
     INFO = {
         "name": "Tubemapper",
-        "version": "0.6.0",
+        "version": "0.6.2",
         "author": "Tristan Read (ReadieFur)"
     }
 
     __ALGORITHMS = [
-        "dijkstra",
-        # "bellman-ford-dp"
+        "Dijkstra",
+        "Bellman Ford DP"
     ]
 
     __graph: TubemapGraph = None
@@ -102,13 +104,29 @@ class Program:
         """Lists the nodes in the graph."""
         if show_help:
             Program.print("Lists all nodes in the graph with the lines to their neighbours.")
-            Program.print("Usage: ", (f"list", 'yellow'))
+            Program.print("Usage:")
+            Program.print((f"list", 'yellow'))
+            Program.print(("line", 'yellow'), (" <station>...", 'cyan'), "\n\tLists the neighbouring stations and their lines of the specified station(s).")
+            return
+
+        nodes: List[TubemapNode] = []
+        if len(args) == 0:
+            nodes = Program.__graph.nodes.values()
+        else:
+            for arg in args:
+                node = Program.__get_node_from_label_or_id(arg)
+                if node is None:
+                    Program.print((f"Invalid station", 'red'), (f" '{arg}'", 'green'), (f".", 'red'))
+                    continue
+                nodes.append(node)
+
+        if len(nodes) == 0:
+            Program.print((f"No stations found.", 'red'))
             return
 
         buffer: List[(str, str)] = []
-
-        for node in Program.__graph.nodes.values():
-            info = [Program.build_coloured_string((Program.__get_tag(node), 'green')), ""]
+        for node in nodes:
+            station_str = Program.build_coloured_string((Program.__get_tag(node), 'green'))
 
             line_buffer = []
             for neibouring_node_id, edges in node.adjacency_dict.items():
@@ -123,9 +141,7 @@ class Program:
                 line_buffer.append(neighbour_string)
 
             line_buffer.sort()
-            info[1] = f"{', '.join(line_buffer)}"
-
-            buffer.append((info[0], info[1]))
+            buffer.append((station_str, ', '.join(line_buffer)))
 
         buffer.sort(key=lambda x: x[0])
 
@@ -264,14 +280,16 @@ class Program:
             Program.print(("algorithm", 'yellow'), (" [algorithm]", 'magenta'), "\n\tSets the algorithm.")
             return
 
+        algorithms_lower = [algorithm.lower() for algorithm in Program.__ALGORITHMS]
+
         if len(args) < 1:
             Program.print("The current algorithm is", (f" '{Program.__ALGORITHMS[Program.__algorithm]}'", 'green'), ".")
         elif args[0] == "list":
             Program.print("Available algorithms:")
             for algorithm in Program.__ALGORITHMS:
-                Program.print((f"- {algorithm}", 'cyan'))
-        elif args[0].lower() in Program.__ALGORITHMS:
-            Program.__algorithm = Program.__ALGORITHMS.index(args[0].lower())
+                Program.print("-", (f" {algorithm}", 'cyan'))
+        elif args[0].lower() in algorithms_lower:
+            Program.__algorithm = algorithms_lower.index(args[0].lower())
             Program.print("The algorithm is now", (f" '{Program.__ALGORITHMS[Program.__algorithm]}'", 'green'), ".")
         else:
             Program.print((f"Invalid algorithm.", 'red'))
@@ -307,8 +325,11 @@ class Program:
             base_algorithm = BellmanFordsAlgorithmDP
             tubemap_algorithm = TubemapBellmanFordsAlgorithmDP
 
+        calculation_start_time = time()
         optimal_path_part_array = base_algorithm.find_shortest_path(Program.__graph, Program.__start_node, Program.__end_node)
         tubemap_path_part_array = tubemap_algorithm.find_shortest_path(Program.__graph, Program.__start_node, Program.__end_node)
+        calculation_duration = time() - calculation_start_time
+        Program.print((f"Calculation took {calculation_duration * 1000:.2f}ms.", 'black'))
 
         optimal_path_weight = 0
         tubemap_path_weight = 0

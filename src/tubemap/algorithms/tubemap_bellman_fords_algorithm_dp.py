@@ -27,15 +27,21 @@ class TubemapBellmanFordsAlgorithmDP(BellmanFordsAlgorithmDP):
         #Relaxing an edge is when we check the currently processed nodes to see if there is a shorter path than the current one.
         for _ in range(len(graph.nodes) - 1):
             for [source, destination, edge] in graph.edge_list.values():
-                if not edge.closed and bellman_ford_nodes[source.id].path_weight != INT_MAX and bellman_ford_nodes[source.id].path_weight + edge.weight < bellman_ford_nodes[destination.id].path_weight:
+                if edge.closed:
+                    continue
+                if bellman_ford_nodes[source.id].path_weight != INT_MAX and bellman_ford_nodes[source.id].path_weight + edge.weight < bellman_ford_nodes[destination.id].path_weight:
                     bellman_ford_nodes[destination.id].path_weight = bellman_ford_nodes[source.id].path_weight + edge.weight
                     bellman_ford_nodes[destination.id].previous_node = bellman_ford_nodes[source.id]
                     bellman_ford_nodes[destination.id].previous_edge = edge
+                elif bellman_ford_nodes[destination.id].path_weight != INT_MAX and bellman_ford_nodes[destination.id].path_weight + edge.weight < bellman_ford_nodes[source.id].path_weight:
+                    bellman_ford_nodes[source.id].path_weight = bellman_ford_nodes[destination.id].path_weight + edge.weight
+                    bellman_ford_nodes[source.id].previous_node = bellman_ford_nodes[destination.id]
+                    bellman_ford_nodes[source.id].previous_edge = edge
 
         #Check for negative-weight cycles.
         #Negative weight cycles are when a path is found that is shorter than the current one, this will result in an infinite loop.
         for [source, destination, edge] in graph.edge_list.values():
-            if bellman_ford_nodes[source.id].path_weight != INT_MAX and bellman_ford_nodes[source.id].path_weight + edge.weight < bellman_ford_nodes[destination.id].path_weight:
+            if not edge.closed and (bellman_ford_nodes[source.id].path_weight != INT_MAX and bellman_ford_nodes[source.id].path_weight + edge.weight < bellman_ford_nodes[destination.id].path_weight or bellman_ford_nodes[destination.id].path_weight != INT_MAX and bellman_ford_nodes[destination.id].path_weight + edge.weight < bellman_ford_nodes[source.id].path_weight):
                 raise RecursionError("Negative weight cycle detected.")
 
         #Return the shortest path.

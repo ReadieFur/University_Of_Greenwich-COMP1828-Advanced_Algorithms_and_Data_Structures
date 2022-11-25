@@ -35,16 +35,21 @@ class BellmanFordsAlgorithmDP(AAlgorithm):
         #Relax all edges |V| - 1 times.
         #Relaxing an edge is when we check the currently processed nodes to see if there is a shorter path than the current one.
         for _ in range(len(graph.nodes) - 1):
+            #In the example they iterate over all of the edges in the graph, however I've noticed that they look at the source edge and then the destination edge of each recorded edge, this only works one way meaning the reason my tests may have failed is becuase a shorter path was valid in the other direction, but the algorithm never saw it, e.g. start at B and end at D, A-B=1, A-C=4, B-D=2, C-D=1, summarised, the example will get up to A=inf B=0 D=1 C=inf because when checking C-D, C is inf so it skips checking the weight and as it only checks source to dest, it will never see that D-C=1 where C=inf and D=1 meaning it won't update C's weight to 2.
             for [source, destination, edge] in graph.edge_list.values():
                 if bellman_ford_nodes[source.id].path_weight != INT_MAX and bellman_ford_nodes[source.id].path_weight + edge.weight < bellman_ford_nodes[destination.id].path_weight:
                     bellman_ford_nodes[destination.id].path_weight = bellman_ford_nodes[source.id].path_weight + edge.weight
                     bellman_ford_nodes[destination.id].previous_node = bellman_ford_nodes[source.id]
                     bellman_ford_nodes[destination.id].previous_edge = edge
+                elif bellman_ford_nodes[destination.id].path_weight != INT_MAX and bellman_ford_nodes[destination.id].path_weight + edge.weight < bellman_ford_nodes[source.id].path_weight:
+                    bellman_ford_nodes[source.id].path_weight = bellman_ford_nodes[destination.id].path_weight + edge.weight
+                    bellman_ford_nodes[source.id].previous_node = bellman_ford_nodes[destination.id]
+                    bellman_ford_nodes[source.id].previous_edge = edge
 
         #Check for negative-weight cycles.
         #Negative weight cycles are when a path is found that is shorter than the current one, this will result in an infinite loop.
         for [source, destination, edge] in graph.edge_list.values():
-            if bellman_ford_nodes[source.id].path_weight != INT_MAX and bellman_ford_nodes[source.id].path_weight + edge.weight < bellman_ford_nodes[destination.id].path_weight:
+            if bellman_ford_nodes[source.id].path_weight != INT_MAX and bellman_ford_nodes[source.id].path_weight + edge.weight < bellman_ford_nodes[destination.id].path_weight or bellman_ford_nodes[destination.id].path_weight != INT_MAX and bellman_ford_nodes[destination.id].path_weight + edge.weight < bellman_ford_nodes[source.id].path_weight:
                 raise RecursionError("Negative weight cycle detected.")
 
         #Return the shortest path.
