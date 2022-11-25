@@ -52,6 +52,48 @@ Below are the two graphs used for testing:
 
 ## Screen-captured demonstration of your working source code
 ###### (max 3 pages) [20 marks]
+<style>
+.demo-image.wide
+{
+    width: 500px;
+}
+
+.demo-image.wide2
+{
+    width: 700px;
+}
+
+.demo-image.tall
+{
+    height: 250px;
+}
+</style>
+
+### Task 1a:
+Task 1a asked us to calculate and display the shortest path between two nodes.  
+<img src="./report_images/task_1a.png" class="demo-image wide"/>
+
+### Task 1b:
+Task 1b asked us to show a histogram of the time between each station in the path.  
+<img src="./report_images/task_1b.png" class="demo-image wide"/>
+
+### Task 2a:
+Task 2a tasked us with being able to close a line, and denying closure if it is not feasible.  
+Here I am closing the line between `Woodford` and `Roding Valley` via the `Central` line. This closure is accepted because it does not disconnect the graph.  
+However when I try to close the line between `Leystone` and `Wanstead` via the `Central` line, the closure is denied because it would disconnect the graph because all stations between `Roding Valley` and `Wanstead` would be unreachable.  
+<img src="./report_images/task_2a_1.png" class="demo-image wide2"/><br>
+Below is a visual representation of what I was explaining above.  
+<img src="./report_images/task_2a_2.png" class="demo-image tall"/>
+
+### Task 2b:
+Task 2b asked us to show the impact of a closure one or multiple lines would have on the quickest journey between two stations.  
+<img src="./report_images/task_2b.png" class="demo-image wide2"/>
+
+### Task 3:
+Task 3 asked us to either come up with another algorithm to solve the pathfinding problem or create a visual representation of the graph. I had decided to do both, however the visual representation was not written in Python.  
+<img src="./report_images/task_3_cli.png" height="125px"/><br>
+<img src="./report_images/task_3_cli_dijkstras.png" class="demo-image wide"/><br>
+<img src="./report_images/task_3_cli_bellman_fords_dp.png" class="demo-image wide"/>
 
 ## Outcomes of Task 1, 2 and 3
 ###### (max 2 pages) [20 marks]
@@ -67,7 +109,7 @@ Below are the two graphs used for testing:
 | --- | --- |
 | 23rd October | Started experimenting with data structures. |
 | 30th October | Started building Dijkstra's algorithm. |
-| 6th November | Completed building TS core web-app ([source, private as of submission](https://github.com/ReadieFur/GraphBuilder), [demo](https://readiefur.github.io/GraphBuilder/)). |
+| 6th November | Completed building TS core web-app ([source](https://github.com/ReadieFur/GraphBuilder), private as of submission, [demo](https://readiefur.github.io/GraphBuilder/)). |
 | 13th November | Converted TS web-app core to a Python CLI program and added task 2 specific properties. |
 | 20th November | **1.** Completed task 1B to display a histogram timeline. **2.** Completed task 2A to allow line closures. **3.** Added Bellman Ford's dynamic programming algorithm. |
 
