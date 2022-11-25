@@ -87,6 +87,7 @@ class Program:
                 if len(command_args) == 0:
                     Program.print("Command syntax: ", (f"[required]", 'magenta'), " ", (f"<optional>", 'cyan'))
                     Program.print("For help with sub-commands, type: ", (f"help", 'yellow'), " ", (f"[command]", 'magenta'))
+                    Program.print("For any argument that requires a space in it, surround it with double quotes (e.g.", (' "', 'yellow'), ("argument", 'cyan'), ('"', 'yellow'), ").")
                     Program.print("Commands:")
                     for command in COMMANDS:
                         Program.print(f"- ", (f"{command}", 'yellow'))
@@ -103,10 +104,10 @@ class Program:
     def __command_list(args: List[str], show_help: bool = False) -> None:
         """Lists the nodes in the graph."""
         if show_help:
-            Program.print("Lists all nodes in the graph with the lines to their neighbours.")
+            Program.print("Lists all nodes in the graph with the lines to their neighbors.")
             Program.print("Usage:")
             Program.print((f"list", 'yellow'))
-            Program.print(("line", 'yellow'), (" <station>...", 'cyan'), "\n\tLists the neighbouring stations and their lines of the specified station(s).")
+            Program.print(("line", 'yellow'), (" <station>...", 'cyan'), "\n\tLists the neighboring stations and their lines of the specified station(s).")
             return
 
         nodes: List[TubemapNode] = []
@@ -129,16 +130,16 @@ class Program:
             station_str = Program.build_coloured_string((Program.__get_tag(node), 'green'))
 
             line_buffer = []
-            for neibouring_node_id, edges in node.adjacency_dict.items():
-                neibouring_node = Program.__graph.nodes[neibouring_node_id]
-                neighbour_string = Program.build_coloured_string((Program.__get_tag(neibouring_node), 'green'))
+            for neighboring_node_id, edges in node.adjacency_dict.items():
+                neighboring_node = Program.__graph.nodes[neighboring_node_id]
+                neighbor_string = Program.build_coloured_string((Program.__get_tag(neighboring_node), 'green'))
 
-                neighbour_string += f" (via"
+                neighbor_string += f" (via"
                 for edge in edges.values():
-                    neighbour_string += Program.build_coloured_string((f" {Program.__get_tag(edge)}", 'cyan'), ",")
-                neighbour_string = f"{neighbour_string[:-1]})"
+                    neighbor_string += Program.build_coloured_string((f" {Program.__get_tag(edge)}", 'cyan'), ",")
+                neighbor_string = f"{neighbor_string[:-1]})"
 
-                line_buffer.append(neighbour_string)
+                line_buffer.append(neighbor_string)
 
             line_buffer.sort()
             buffer.append((station_str, ', '.join(line_buffer)))
@@ -340,7 +341,7 @@ class Program:
 
         #region Build the path string
         #region First node
-        path_string = Program.build_coloured_string("Start at ", (f"'{Program.__get_tag(tubemap_path_part_array[0].node)}'", 'green'), " on the ", (f"'{Program.__get_tag(tubemap_path_part_array[0].edge)}'", 'cyan'), " line.\n")
+        path_string = Program.build_coloured_string("Start at ", (f"'{Program.__get_tag(tubemap_path_part_array[0].node)}'", 'green'), ".\n")
         current_line = Program.__get_tag(tubemap_path_part_array[0].edge)
         stops_between_lines += 1
         #endregion
@@ -354,8 +355,7 @@ class Program:
 
                 edge_tag = Program.__get_tag(current_part.edge)
                 if current_line != edge_tag:
-                    path_string += Program.build_coloured_string(f"Ride ", (f"{stops_between_lines}", 'cyan'), f" {'stop' if stops_between_lines == 1 else 'stops'} to ", (f"'{Program.__get_tag(current_part.node)}'", 'green'), ".\n")
-                    path_string += Program.build_coloured_string("Change to the ", (f"'{edge_tag}'", 'cyan'), " line.\n")
+                    path_string += Program.build_coloured_string(f"Ride", (f" {stops_between_lines}", 'cyan'), f" {'stop' if stops_between_lines == 1 else 'stops'} to", (f" '{Program.__get_tag(current_part.node)}'", 'green'), " via the", (f" '{current_line}'", 'cyan'), " line.\n")
                     current_line = edge_tag
                     stops_between_lines = 0
 
@@ -368,7 +368,7 @@ class Program:
         #endregion
 
         #region Last node
-        path_string += Program.build_coloured_string(f"Ride ", (f"{stops_between_lines}", 'cyan'), f" {'stop' if stops_between_lines == 1 else 'stops'} to ", (f"'{Program.__get_tag(tubemap_path_part_array[len(tubemap_path_part_array) - 1].node)}'", 'green'), " where you will arrive at your destination.")
+        path_string += Program.build_coloured_string(f"Ride ", (f"{stops_between_lines}", 'cyan'), f" {'stop' if stops_between_lines == 1 else 'stops'} to ", (f"'{Program.__get_tag(tubemap_path_part_array[len(tubemap_path_part_array) - 1].node)}'", 'green'), " via the", (f" '{current_line}'", 'cyan'), " line, where you will arrive at your destination.")
         #endregion
 
         #Print the summary.
@@ -489,7 +489,7 @@ class Program:
             MIN_PADDING = 2
 
             """Histogram layout:
-            Top row is the time labels fron smallest_weight to largest_weight.
+            Top row is the time labels from smallest_weight to largest_weight.
             The graph is offset to the right by the length of longest_tag + " | ".
             The rest of the rows have their edge right aligned to the | and their weight bar following it.
             The second is the edge with the longest weight.
@@ -510,7 +510,7 @@ class Program:
             #region Build the histogram.
             #region Header
             #Offset the graph by the length of longest_tag and then add " | ".
-            #For this specific use case, we won't expect the weights to be any larget than 100.
+            #For this specific use case, we won't expect the weights to be any largest than 100.
             #Use an increment pattern where the first digit is always 1, 2, 5, in increments of 10 each iteration.
             #This isn't perfect and will break on small MAX_WIDTHs, but it's good enough for this use case.
             fine_step = (largest_value + abs(smallest_value)) / remaining_width
@@ -534,7 +534,7 @@ class Program:
                 step *= multiplier
                 i = (i + 1) % 3
                 #Now we have the step size, calculate how many steps we need to fit in the MAX_WIDTH between smallest_weight and largest_weight.
-                #(This is required to be cauculated within this loop becuase we need this value for knowing if the step space is valid).
+                #(This is required to be calculated within this loop because we need this value for knowing if the step space is valid).
                 steps = int((largest_value + abs(smallest_value)) / step)
                 #If the step size multiplied by the number of steps is less than largest_weight then we need to add another step.
                 if step * steps < largest_value:
@@ -550,8 +550,8 @@ class Program:
                 #This is done by adding spaces after the label to keep the offset.
                 subheader += f"{next_step:>{space_between_steps + (len(next_step) - largest_digit_count)}}"
 
-            #We need to know where the graph ends so we know where to set the max bar width to and to properly center aligh the sub-header.
-            #We can "cheat" (as opposed to calculating it mathmatically) in getting this value by taking the header and trimming the right side.
+            #We need to know where the graph ends so we know where to set the max bar width to and to properly center align the sub-header.
+            #We can "cheat" (as opposed to calculating it mathematically) in getting this value by taking the header and trimming the right side.
             graph_width = len(subheader.rstrip())
 
             #Add the headers.

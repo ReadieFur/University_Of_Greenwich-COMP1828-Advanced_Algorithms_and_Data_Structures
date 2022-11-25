@@ -1,4 +1,4 @@
-#Because python's module resoultiuon is $H1T I've moved all of the test instantiaters to this file so that the module resolutions don't conflict with how I've setup the main.py file.
+#Because python's module resolution is $H1T I've moved all of the test instantiaters to this file so that the module resolutions don't conflict with how I've setup the main.py file.
 
 from core.graph import Graph, SerializedGraph
 from algorithms.algorithm_tests import AlgorithmTests

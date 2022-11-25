@@ -11,7 +11,9 @@
         "*.js": true
     },
     "cSpell.words": [
+        "dijkstras",
         "multigraphs",
-        "tubemap"
+        "tubemap",
+        "Tubemapper"
     ]
 }
