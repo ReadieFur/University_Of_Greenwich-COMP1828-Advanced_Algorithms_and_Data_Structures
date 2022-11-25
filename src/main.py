@@ -341,6 +341,7 @@ class Program:
 
         #region Build the path string
         #region First node
+        tubemap_path_weight += tubemap_path_part_array[0].edge.weight
         path_string = Program.build_coloured_string("Start at ", (f"'{Program.__get_tag(tubemap_path_part_array[0].node)}'", 'green'), ".\n")
         current_line = Program.__get_tag(tubemap_path_part_array[0].edge)
         stops_between_lines += 1
@@ -361,7 +362,7 @@ class Program:
 
                 stops_between_lines += 1
 
-        for i in range(1, len(optimal_path_part_array) - 1):
+        for i in range(len(optimal_path_part_array) - 1):
             current_part = optimal_path_part_array[i]
             if current_part.edge is not None:
                 optimal_path_weight += current_part.edge.weight
