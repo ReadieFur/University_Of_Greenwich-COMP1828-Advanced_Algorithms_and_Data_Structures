@@ -138,16 +138,27 @@ class _GraphSearcherTests:
 
         graph = Graph()
 
-        node1 = graph.add_node()
-        node2 = graph.add_node()
-        node3 = graph.add_node()
-        node4 = graph.add_node()
+        A = graph.add_node()
+        B = graph.add_node()
+        C = graph.add_node()
+        D = graph.add_node()
 
-        graph.add_edge(node1, node2, 1)
-        graph.add_edge(node1, node3, 1)
-        graph.add_edge(node2, node4, 1)
+        graph.add_edge(A, B, 1)
+        graph.add_edge(A, C, 1)
+        graph.add_edge(B, D, 1)
 
-        #TODO: Create a visual graph for this test.
+        visual_graph = """
+        *     A
+        *    / \\
+        *  (1) (1)
+        *  /     \\
+        * B       C
+        *  \\
+        *  (1)
+        *    \\
+        *     D
+        """
+        Program.print((str.join("\n", [line.lstrip() for line in visual_graph.splitlines()]), 'green'))
 
         expected_result = True
         bfs_result = GraphSearcher.is_graph_connected(graph, True)
@@ -168,14 +179,24 @@ class _GraphSearcherTests:
 
         graph = Graph()
 
-        node1 = graph.add_node()
-        node2 = graph.add_node()
-        node3 = graph.add_node()
-        node4 = graph.add_node()
+        A = graph.add_node()
+        B = graph.add_node()
+        C = graph.add_node()
+        D = graph.add_node()
 
-        graph.add_edge(node1, node2, 1)
-        graph.add_edge(node1, node3, 1)
-        # graph.add_edge(node2, node4, 1)
+        graph.add_edge(A, B, 1)
+        graph.add_edge(A, C, 1)
+        # graph.add_edge(B, D, 1)
+
+        visual_graph = """
+        *     A
+        *    / \\
+        *  (1) (1)
+        *  /     \\
+        * B       C
+        *     D
+        """
+        Program.print((str.join("\n", [line.lstrip() for line in visual_graph.splitlines()]), 'green'))
 
         expected_result = False
         bfs_result = GraphSearcher.is_graph_connected(graph, True)
