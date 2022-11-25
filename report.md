@@ -12,6 +12,7 @@ The graph object contains a dictionary of nodes and another dictionary of edges.
 ###### (max 2 pages) [20 marks]
 The reason behind me using dictionaries for everything is that while they may take a bit longer to index and use a bit more memory is, overall they are faster and more reliable because if I were to add a new node, I would not have to resize the entire array. The story is similar for removing an item, but you also don't have to update all of your array indexers, by giving each element their own ID, you can always index that same elements info no matter what modifications are made to the dictionary. This is as opposed to if you had an array where you would also have to keep track of all of the elements if you needed to index them again.  
 My choice of algorithm for the primary task was to use Dijkstra's algorithm. The reason I picked this algorithm is because it was the one that I understood the best by myself (without looking at external code resources). While this is a "greedy" algorithm, meaning it will not follow the shortest path for every search it makes, it is still fast and reliable enough for this application.  
+Before an attempt is made to search the graph for a path between the specified nodes, a depth first search is run to ensure that the graph is connected because if it is not, then the search would have a chance of failing, and in the case of the algorithm I used in task 3, for Bellman Ford's dynamic programming algorithm, it would fail when checking for negative cycles.  
 For task 3, I decided implement the dynamic programming variant of the Bellman Ford algorithm, this algorithm is not greedy and follows the shortest path every iteration. In my implementation of Dijkstra's algorithm, I had made an optimization where I would return the result once the end node was boxed. I was unable to implement this into the Bellman Ford algorithm because it would end up throwing off the negative cycle detection.  
 
 ## Discussion for the choice of test data you provide and a table detailing the tests performed
@@ -97,14 +98,21 @@ Task 3 asked us to either come up with another algorithm to solve the pathfindin
 
 ## Outcomes of Task 1, 2 and 3
 ###### (max 2 pages) [20 marks]
+Comparison of the histogram results between task 1b and 2b.
+| Task 1b |
+| --- |
+| <img src="./report_images/outcomes_task_1b.png" class="demo-image wide2"/> |
 
+| Task 2b |
+| --- |
+| <img src="./report_images/outcomes_task_2b.png" class="demo-image wide2"/> |
 ## Conclusion and critical discussion on the limitation of the work done
 ###### (max 1 page) [20 marks]
-`Summary` Python is $H1T.
+During my creation of this program, I had initially created the program in TypeScript building the web-app seen in task 3 part 2. I had written things this way because I am more familiar with type strict languages and I find them much easier to debug. By building the web-app I also had the benefits of visualizing the data with more ease. I had converted the csv file using a C# script and Google's Tesseract OCR library to line them up with the London underground map where I then used my web-app to tidy up the data and export it for use in this program.  
+In terms of the algorithms used in this project, I had read that there are much more efficient algorithms for solving the shortest path problem, however I had decided to use the algorithms that were taught in the lectures as they gave me the strongest lead on how to solve the problem.  
 
 ## Weekly log of progress, individual contribution toward the final outcome by each team member
 ###### (max 2 pages) [10 marks]
-
 | Week | Progress |
 | --- | --- |
 | 23rd October | Started experimenting with data structures. |
