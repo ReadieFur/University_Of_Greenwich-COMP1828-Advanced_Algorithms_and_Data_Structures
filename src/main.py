@@ -14,7 +14,7 @@ from tubemap.algorithms.tubemap_bellman_fords_algorithm_dp import TubemapBellman
 class Program:
     INFO = {
         "name": "Tubemapper",
-        "version": "0.6.5",
+        "version": "0.6.6",
         "author": "Tristan Read (ReadieFur)"
     }
 
@@ -331,7 +331,7 @@ class Program:
         tubemap_path_part_array = tubemap_algorithm.find_shortest_path(Program.__graph, Program.__start_node, Program.__end_node)
         calculation_duration = time() - calculation_start_time
         if "debug" in args:
-            Program.print((f"Calculation took {calculation_duration * 1000:.2f}ms.", 'black'))
+            Program.print((f"Calculation took {calculation_duration * 1000:.2f}ms, using {Program.__ALGORITHMS[Program.__algorithm]}'s algorithm.", 'black'))
 
         optimal_path_weight = 0
         tubemap_path_weight = 0
