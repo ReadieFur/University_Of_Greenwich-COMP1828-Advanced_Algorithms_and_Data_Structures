@@ -1,0 +1,135 @@
+body {
+  margin: 0;
+  min-width: 100vw;
+  min-height: 100vh;
+}
+
+.draggable {
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  position: absolute;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+}
+
+ul {
+  margin: 0;
+  padding: 0 0 0 20px;
+}
+
+#toolbox {
+  position: fixed !important;
+  padding: 5px;
+  background-color: gray;
+  z-index: 100;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  opacity: 0.5;
+}
+
+#toolbox:hover {
+  opacity: 1;
+}
+
+#canvas {
+  position: absolute;
+  -webkit-transform-origin: 0 0;
+          transform-origin: 0 0;
+  z-index: 10;
+  background-size: contain;
+  background-repeat: no-repeat;
+  border: 1px solid black;
+}
+
+input[type="text"] {
+  border: none;
+  background: none;
+  outline: none;
+  text-align: center;
+}
+
+.node {
+  position: absolute;
+  width: var(--node-radius);
+  height: var(--node-radius);
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  background-color: white;
+  border-width: calc(var(--node-radius) * 0.04);
+  border-style: solid;
+  border-color: black;
+  border-radius: 50%;
+  z-index: 30;
+}
+
+.node > input {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  font-size: calc(var(--node-radius) / 3);
+}
+
+.line {
+  position: absolute;
+  -webkit-transform-origin: 0 0;
+          transform-origin: 0 0;
+  z-index: 20;
+}
+
+.line > input {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  width: auto;
+  height: auto;
+  -webkit-transform-origin: 0 0;
+          transform-origin: 0 0;
+  font-size: calc(var(--node-radius) / 2);
+}
+
+input[type="file"] {
+  display: none;
+}
+
+.input_file, button {
+  border: 1px solid darkgray;
+  background-color: lightgray;
+  display: inline-block;
+  padding: 2px 5px;
+  margin: 1px 0;
+  cursor: pointer;
+}
+
+.collapsible > :first-child:hover {
+  background-color: darkgray;
+  cursor: pointer;
+}
+
+.d_grabber {
+  text-align: center;
+  cursor: -webkit-grab;
+  cursor: grab;
+}
+
+.d_grabber:hover {
+  background-color: darkgray;
+}
+
+.d_grabber:active {
+  cursor: -webkit-grabbing;
+  cursor: grabbing;
+}
+
+select {
+  max-width: 250px;
+}
+/*# sourceMappingURL=index.css.map */

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./index.css">
+    <script src="./index.js" type="module"></script>
+</head>
+<body>
+    <div id="toolbox" class="draggable d_ignore_children">
+        <div class="d_grabber">=</div>
+        <div class="collapsible c_active">
+            <h4>Controls:</h4>
+            <ul>
+                <li>Shift click directly onto the canvas create a node.</li>
+                <li>Click and drag on a node to move it.</li>
+                <li>Shift click a node to draw an edge.</li>
+                <li>Alt click a node or edge to delete it.</li>
+                <!-- <li>[Future] Shift click the canvas to move the view.</li> -->
+            </ul>
+        </div>
+        <div class="collapsible c_active">
+            <h4>Editor:</h4>
+            <div>
+                <label for="input_node_radius">Node radius (50)</label>
+                <input type="range" id="input_node_radius" min="5" max="50" step="1" value="50">
+                <br>
+                <label for="input_scale">Scale</label>
+                <input type="number" id="input_scale" min="0.1" step="0.1" value="1">
+                <br>
+                <label for="file_background" class="input_file">Background</label>
+                <input type="file" id="file_background" accept="image/*">
+                <br>
+                <button id="button_save">Save</button>
+                <br>
+                <label for="file_load" class="input_file">Load</label>
+                <input type="file" id="file_load" accept="application/json">
+            </div>
+        </div>
+        <div class="collapsible c_active">
+            <h4>Pathfinding:</h4>
+            <div>
+                <label for="select_algorithm">Algorithm</label>
+                <select id="select_algorithm"></select>
+                <br>
+                <label for="select_start_node">Start node</label>
+                <select id="select_start_node"></select>
+                <br>
+                <label for="select_end_node">End node</label>
+                <select id="select_end_node"></select>
+                <br>
+                <button id="button_find_shortest_path" title="NOTE: This can be slow when used on a large dataset as there will be many UI draw calls">Find shortest path</button>
+                <br>
+                <button id="button_find_shortest_path_no_ui" title="Use this if you just want the result without visualisation">Find shortest path (no UI)</button>
+                <br>
+                <label for="input_step_speed">Step speed (0000)</label>
+                <input type="range" id="input_step_speed" min="0" max="2000" step="1" value="0">
+                <br>
+                <label id="label_pathfinding_info">Info: N/A</label>
+            </div>
+        </div>
+        <div class="collapsible c_active">
+            <h4>About:</h4>
+            <div>
+                <label>
+                    The source code to this project will remain<br>
+                    private until I have submitted my coursework.
+                </label>
+                <ul>
+                    <li>A list of sample data files can be found <a href="./sample_data/">here</a>.</li>
+                    <li>A demo video can be viewed <a href="./GraphBuilder-Demo.mp4">here</a>.</li>
+                    <li>Created by: <a href="https://github.com/ReadieFur/GraphBuilder">ReadieFur (Tristan Read)</a></li>
+                    <li>License: <a href="https://choosealicense.com/licenses/gpl-3.0/">GPL-3.0 license</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div id="canvas"></div>
+</body>
+</html>

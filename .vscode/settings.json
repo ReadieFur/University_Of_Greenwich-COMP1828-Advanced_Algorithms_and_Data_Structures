@@ -7,8 +7,8 @@
         "**/.DS_Store": true,
         "**/Thumbs.db": true,
         "**/__pycache__/": true,
-        "*.map": true,
-        "*.js": true
+        "**/*.map": true,
+        "**/*.js": true
     },
     "cSpell.words": [
         "dijkstras",

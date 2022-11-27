@@ -1,0 +1,166 @@
+body
+{
+    margin: 0;
+    min-width: 100vw;
+    min-height: 100vh;
+}
+
+.draggable
+{
+    width: max-content;
+    position: absolute;
+    // cursor: grab;
+
+    // &:active
+    // {
+    //     cursor: grabbing;
+    // }
+}
+
+h1, h2, h3, h4, h5, h6
+{
+    margin: 0;
+}
+
+ul
+{
+    margin: 0;
+    padding: 0 0 0 20px;
+}
+
+#toolbox
+{
+    position: fixed !important;
+    padding: 5px;
+    background-color: gray;
+    z-index: 100;
+    user-select: none;
+    opacity: 0.5;
+
+    &:hover
+    {
+        opacity: 1;
+    }
+}
+
+#canvas
+{
+    position: absolute;
+    transform-origin: 0 0;
+    // width: 1920px; //Set in code.
+    // height: 1080px; //Set in code.
+    z-index: 10;
+    background-size: contain;
+    background-repeat: no-repeat;
+    border: 1px solid black;
+}
+
+input[type="text"]
+{
+    //Styling.
+    border: none;
+    background: none;
+    outline: none;
+    text-align: center;
+}
+
+.node
+{
+    // $default-node-radius: 50px; //Set in code.
+
+    position: absolute;
+    // width: ($default-node-radius);
+    width: var(--node-radius);
+    // height: ($default-node-radius);
+    height: var(--node-radius);
+    transform: translate(-50%, -50%);
+    background-color: white;
+    // border-width: 1px;
+    border-width: calc(var(--node-radius) * 0.04);
+    border-style: solid;
+    border-color: black;
+    border-radius: 50%;
+    z-index: 30;
+
+    > input
+    {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        // font-size: $default-node-radius / 4;
+        font-size: calc(var(--node-radius) / 3);
+    }
+}
+
+.line
+{
+    position: absolute;
+    transform-origin: 0 0;
+    // transform: translateY(-50%); //Set in code.
+    //Fix this not sitting behind the nodes.
+    z-index: 20;
+
+    > input
+    {
+        //Positioning.
+        //This should be placed in the middle of the line.
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: auto;
+        height: auto;
+        //The rotation should always be upright, regardless of the line's angle (set in code).
+        transform-origin: 0 0;
+        font-size: calc(var(--node-radius) / 2);
+    }
+}
+
+input[type="file"]
+{
+    display: none;
+}
+
+.input_file, button
+{
+    border: 1px solid darkgray;
+    background-color: lightgray;
+    display: inline-block;
+    padding: 2px 5px;
+    margin: 1px 0;
+    cursor: pointer;
+}
+
+.collapsible
+{
+    > :first-child
+    {
+        &:hover
+        {
+            background-color: darkgray;
+            cursor: pointer;
+        }
+    }
+}
+
+.d_grabber
+{
+    text-align: center;
+    cursor: grab;
+
+    &:hover
+    {
+        background-color: darkgray;
+    }
+
+    &:active
+    {
+        cursor: grabbing;
+    }
+}
+
+select
+{
+    max-width: 250px;
+}

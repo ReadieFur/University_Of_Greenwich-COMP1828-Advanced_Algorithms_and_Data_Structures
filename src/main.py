@@ -1,4 +1,4 @@
-from typing import Any, List, Callable, Tuple
+from typing import Any, List, Callable, Tuple, NoReturn
 import os
 from time import time
 from tubemap.core.tubemap_graph import TubemapGraph, SerializedTubemapGraph
@@ -10,6 +10,7 @@ from algorithms.bellman_fords_algorithm_dp import BellmanFordsAlgorithmDP
 from tubemap.algorithms.tubemap_graph_searcher import TubemapGraphSearcher
 from tubemap.algorithms.tubemap_dijkstras_algorithm import TubemapDijkstrasAlgorithm
 from tubemap.algorithms.tubemap_bellman_fords_algorithm_dp import TubemapBellmanFordsAlgorithmDP
+from webserver.webserver import Webserver
 
 class Program:
     INFO = {
@@ -27,6 +28,7 @@ class Program:
     __start_node: TubemapNode = None
     __end_node: TubemapNode = None
     __algorithm: int = 0
+    __stop_webserver_callback: Callable[[], None] | None = None
 
     @staticmethod
     def Main() -> None:
@@ -54,13 +56,18 @@ class Program:
             "end": Program.__command_end,
             "algorithm": Program.__command_algorithm,
             "go": Program.__command_go,
+            "gui": Program.__command_gui,
             "clear": Program.__command_clear,
             "exit": Program.__command_exit
         }
 
         while True:
-            # command = input(f"{Program.get_colour_string('yellow')}>{Program.get_colour_string()} ").lower()
-            command = input(Program.build_coloured_string(("> ", 'yellow'))).lower()
+            command = ""
+            try:
+                command = input(Program.build_coloured_string(("> ", 'yellow'))).lower()
+            except KeyboardInterrupt:
+                Program.__command_exit([])
+                #Never returns.
 
             command_prefix = command.split(" ")[0]
             #The following splits the remaining args on spaces like the above but joins strings back together between quotes.
@@ -392,6 +399,43 @@ class Program:
         Program.__display_histogram(histogram_data, "Station", "Time between previous station (minutes)")
 
     @staticmethod
+    def __command_gui(args: List[str], show_help = False) -> None:
+        WEBSERVER_ADDRESS = f"http://{Webserver.HOSTNAME}:{Webserver.PORT}"
+        webserver_address_message = Program.build_coloured_string((WEBSERVER_ADDRESS, 'blue'))
+        json_data_info = Program.build_coloured_string("The data used for this program can be loaded from", (" './tubemap.json'", 'cyan'), ".")
+
+        if show_help:
+            Program.print("Starts or stops the webserver GUI for task 3(B).")
+            Program.print(json_data_info)
+            Program.print("Usage:")
+            Program.print(("gui", 'yellow'), "\n\tReturns the URL of the webserver if it is running.")
+            Program.print(("gui start", 'yellow'), "\n\tStarts the webserver.")
+            Program.print(("gui stop", 'yellow'), "\n\tStops the webserver.")
+            return
+
+        if len(args) == 0:
+            state_message = ""
+            if Program.__stop_webserver_callback is not None:
+                state_message = Program.build_coloured_string((f" running", 'green'), f" at: {webserver_address_message}")
+            else:
+                state_message = Program.build_coloured_string((f" not running", 'red'), ".")
+            Program.print(f"The webserver is{state_message}")
+        elif len(args) == 1:
+            if args[0] == "start":
+                Program.__stop_webserver_callback = Webserver.run()
+                Program.print(f"Webserver started at: {webserver_address_message}")
+                Program.print(json_data_info)
+                os.system(f"start http://{Webserver.HOSTNAME}:{Webserver.PORT}")
+            elif args[0] == "stop":
+                if Program.__stop_webserver_callback is not None:
+                    Program.print("Stopping webserver...")
+                    Program.__stop_webserver_callback()
+                    Program.__stop_webserver_callback = None
+                    Program.print("Webserver stopped.")
+                else:
+                    Program.print((f"Webserver is not running.", 'red'))
+
+    @staticmethod
     def __command_clear(args: List[str], show_help = False) -> None:
         """Clears the console."""
         if show_help:
@@ -402,12 +446,15 @@ class Program:
         os.system("cls" if os.name == "nt" else "clear")
 
     @staticmethod
-    def __command_exit(args: List[str], show_help = False) -> None:
+    def __command_exit(args: List[str], show_help = False) -> None | NoReturn:
         """Exits the program."""
         if show_help:
             Program.print("Exits the program.")
             Program.print("Usage: ", ("exit", 'yellow'))
         else:
+            Program.print("Exiting...")
+            if Program.__stop_webserver_callback is not None:
+                Program.__stop_webserver_callback()
             exit()
 
     @staticmethod
