@@ -11,5 +11,5 @@
 - [x] Task 3
 
 - Bonus:
-  - [] Task 3:
+  - [-] Task 3:
     - Modify my web graph builder to support this coursework task, line closures etc.
