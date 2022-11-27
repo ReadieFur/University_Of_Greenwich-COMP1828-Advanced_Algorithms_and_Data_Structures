@@ -92,9 +92,19 @@ Task 2b asked us to show the impact of a closure one or multiple lines would hav
 
 ### Task 3:
 Task 3 asked us to either come up with another algorithm to solve the pathfinding problem or create a visual representation of the graph. I had decided to do both, however the visual representation was not written in Python.  
+
+#### Part 1, implementing a different algorithm:
 <img src="./report_images/task_3_cli.png" height="125px"/><br>
 <img src="./report_images/task_3_cli_dijkstras.png" class="demo-image wide"/><br>
 <img src="./report_images/task_3_cli_bellman_fords_dp.png" class="demo-image wide"/>
+
+#### Part 2, visual representation of the graph:
+My web-app is what I had used to tidy up the data after my OCR pass in a different C# program. This web-app is able to add, remove and edit nodes and edges.  
+<img src="./report_images/task_3_visual_overview.png" class="demo-image wide"/><br>
+This image shows the visualized process of the pathfinding algorithm.  
+<img src="./report_images/task_3_visual_finding.png" class="demo-image wide"/><br>
+This image shows the final result from the pathfinding algorithm.  
+<img src="./report_images/task_3_visual_result.png" class="demo-image wide"/><br>
 
 ## Outcomes of Task 1, 2 and 3
 ###### (max 2 pages) [20 marks]
