@@ -10,7 +10,7 @@ from algorithms.bellman_fords_algorithm_dp import BellmanFordsAlgorithmDP
 from tubemap.algorithms.tubemap_graph_searcher import TubemapGraphSearcher
 from tubemap.algorithms.tubemap_dijkstras_algorithm import TubemapDijkstrasAlgorithm
 from tubemap.algorithms.tubemap_bellman_fords_algorithm_dp import TubemapBellmanFordsAlgorithmDP
-from webserver.webserver import Webserver
+from webserver import Webserver
 
 class Program:
     INFO = {
@@ -422,10 +422,13 @@ class Program:
             Program.print(f"The webserver is{state_message}")
         elif len(args) == 1:
             if args[0] == "start":
-                Program.__stop_webserver_callback = Webserver.run()
-                Program.print(f"Webserver started at: {webserver_address_message}")
-                Program.print(json_data_info)
-                os.system(f"start http://{Webserver.HOSTNAME}:{Webserver.PORT}")
+                if Program.__stop_webserver_callback is None:
+                    Program.__stop_webserver_callback = Webserver.run()
+                    Program.print(f"Webserver started at: {webserver_address_message}")
+                    Program.print(json_data_info)
+                    os.system(f"start http://{Webserver.HOSTNAME}:{Webserver.PORT}")
+                else:
+                    Program.print(("The webserver is already running.", 'red'))
             elif args[0] == "stop":
                 if Program.__stop_webserver_callback is not None:
                     Program.print("Stopping webserver...")
