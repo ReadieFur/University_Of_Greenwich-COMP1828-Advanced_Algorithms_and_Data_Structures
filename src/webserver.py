@@ -75,9 +75,12 @@ class Webserver(BaseHTTPRequestHandler):
         while not reset_event.is_set():
             sleep(1)
         #The webserver handle_request will wait for a request, meaning once we want to stop the webserver, we have to send a request to unblock the handle_request.
-        connection = HTTPConnection(Webserver.HOSTNAME, Webserver.PORT)
-        connection.request("GET", "/")
-        connection.getresponse()
+        try:
+            connection = HTTPConnection(Webserver.HOSTNAME, Webserver.PORT)
+            connection.request("GET", "/")
+            connection.getresponse()
+        except ConnectionRefusedError:
+            pass
 
     @staticmethod
     def __stop(reset_event: Event, end_event: Event) -> None:
